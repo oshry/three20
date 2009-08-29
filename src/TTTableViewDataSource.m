@@ -169,6 +169,8 @@
       return [TTTableSubtitleItemCell class];
     } else if ([object isKindOfClass:[TTTableMessageItem class]]) {
       return [TTTableMessageItemCell class];
+	} else if ([object isKindOfClass:[TTTableUpdateItem class]]) {
+	  return [TTTableUpdateItemCell class];
     } else if ([object isKindOfClass:[TTTableImageItem class]]) {
       return [TTTableImageItemCell class];
     } else if ([object isKindOfClass:[TTTableStyledTextItem class]]) {

@@ -50,7 +50,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = BEE7FD0E0F358198002788A5 /* Three20.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 5B5841BB1049563400E421C3 /* libThree20.a */;
+			remoteGlobalIDString = 5B5841BB1049563400E421C3;
 			remoteInfo = Three20;
 		};
 		BEE7FD120F358198002788A5 /* PBXContainerItemProxy */ = {

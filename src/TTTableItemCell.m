@@ -738,8 +738,27 @@ static const CGFloat kDefaultMessageImageHeight = 34;
 // TTTableViewCell class public
 
 + (CGFloat)tableView:(UITableView*)tableView rowHeightForObject:(id)object {
-	// XXXjoe Compute height based on font sizes
-	return 90;
+	TTTableUpdateItem *item = object;
+	
+	// Calculate image dimensions
+	UIImage* image = item.imageURL? [[TTURLCache sharedCache] imageForURL:item.imageURL] : nil;
+	
+	CGFloat imageWidth = image? image.size.width + kKeySpacing : (item.imageURL ? kDefaultImageSize + kKeySpacing : 0);
+	
+	CGFloat maxWidth = tableView.width - (imageWidth + kHPadding*2 + kMargin*2);		
+	CGSize titleSize = [item.title sizeWithFont:TTSTYLEVAR(font)
+					   constrainedToSize:CGSizeMake(maxWidth, CGFLOAT_MAX)
+					   lineBreakMode:UILineBreakModeTailTruncation];
+	
+	CGSize captionSize = [item.caption sizeWithFont:TTSTYLEVAR(font)
+					   constrainedToSize:CGSizeMake(maxWidth, CGFLOAT_MAX)
+					   lineBreakMode:UILineBreakModeTailTruncation];
+	
+	CGSize detailTextSize = [item.text sizeWithFont:TTSTYLEVAR(font)
+							 constrainedToSize:CGSizeMake(maxWidth, CGFLOAT_MAX)
+							 lineBreakMode:UILineBreakModeWordWrap];
+	
+	return kVPadding*2 + titleSize.height + captionSize.height + detailTextSize.height;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -764,9 +783,10 @@ static const CGFloat kDefaultMessageImageHeight = 34;
 		self.detailTextLabel.highlightedTextColor = TTSTYLEVAR(highlightedTextColor);
 		self.detailTextLabel.textAlignment = UITextAlignmentLeft;
 		self.detailTextLabel.contentMode = UIViewContentModeTop;
-		self.detailTextLabel.lineBreakMode = UILineBreakModeTailTruncation;
-		self.detailTextLabel.numberOfLines = kMessageTextLineCount;
+		self.detailTextLabel.lineBreakMode = UILineBreakModeWordWrap;
+		self.detailTextLabel.numberOfLines = 0;
 		self.detailTextLabel.contentMode = UIViewContentModeLeft;
+		
 	}
 	return self;
 }
@@ -811,21 +831,21 @@ static const CGFloat kDefaultMessageImageHeight = 34;
 	}
 	
 	if (self.detailTextLabel.text.length) {
-		CGFloat textHeight = self.detailTextLabel.font.lineHeight * kMessageTextLineCount;
-		self.detailTextLabel.frame = CGRectMake(left, top, width, textHeight);
+		CGSize detailTextSize = [self.detailTextLabel.text sizeWithFont:TTSTYLEVAR(font)
+								 constrainedToSize:CGSizeMake(width, CGFLOAT_MAX)
+								 lineBreakMode:UILineBreakModeWordWrap];	
+				
+		self.detailTextLabel.frame = CGRectMake(left, top, detailTextSize.width, detailTextSize.height);
+		top += self.detailTextLabel.height;
 	} else {
 		self.detailTextLabel.frame = CGRectZero;
 	}
 	
 	if (_timestampLabel.text.length) {
-		_timestampLabel.alpha = !self.showingDeleteConfirmation;
 		[_timestampLabel sizeToFit];
-		_timestampLabel.left = self.contentView.width - (_timestampLabel.width + kSmallMargin);
-		_timestampLabel.top = _titleLabel.top;
-		_titleLabel.width -= _timestampLabel.width + kSmallMargin*2;
-	} else {
-		_titleLabel.frame = CGRectZero;
-	}
+		_timestampLabel.left = _titleLabel.left;
+		_timestampLabel.frame = CGRectMake(left, top, width, _timestampLabel.font.lineHeight);
+	} 
 }
 
 - (void)didMoveToSuperview {
@@ -855,7 +875,7 @@ static const CGFloat kDefaultMessageImageHeight = 34;
 			self.detailTextLabel.text = item.text;
 		}
 		if (item.timestamp) {
-			self.timestampLabel.text = [item.timestamp formatShortTime];
+			self.timestampLabel.text = [item.timestamp formatRelativeTime];
 		}
 		if (item.imageURL) {
 			self.imageView2.URL = item.imageURL;
