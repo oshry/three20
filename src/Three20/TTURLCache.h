@@ -176,6 +176,13 @@
  */
 - (void)invalidateAll;
 
+/**
+ * Retrieves the last modification date of cached element
+ */
+- (NSDate *)cacheModificationDateFromURL:(NSString*)url;
+
+- (NSDate *)cacheModificationDateFromKey:(NSString*)key;
+
 - (void)logMemoryUsage;
 
 @end

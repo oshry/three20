@@ -121,16 +121,16 @@
 }
 
 - (id<TTPhoto>)photoAtIndex:(NSInteger)index {
-  if (index < _photos.count) {
-    id photo = [_photos objectAtIndex:index];
-    if (photo == [NSNull null]) {
-      return nil;
-    } else {
-      return photo;
-    }
-  } else {
-    return nil;
-  }
+	if (index < _photos.count) {
+		id photo = [_photos objectAtIndex:index];
+		if (photo == [NSNull null]) {
+		  return nil;
+		} else {
+		  return photo;
+		}
+	} else {
+		return nil;
+	}
 }
 
 @end

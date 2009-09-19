@@ -365,6 +365,27 @@ static TTURLCache* gSharedCache = nil;
   }
 }
 
+- (NSDate *)cacheModificationDateFromURL:(NSString*)url {
+	NSString *urlKey = [self keyForURL:url];
+	return [self cacheModificationDateFromKey:urlKey];
+}
+
+- (NSDate *)cacheModificationDateFromKey:(NSString*)key {
+	NSString* filePath = [self cachePathForKey:key];
+	NSFileManager* fm = [NSFileManager defaultManager];
+	if (filePath && [fm fileExistsAtPath:filePath]) {
+		NSError *error = nil;
+		NSDictionary *attrs = [fm attributesOfItemAtPath:filePath error:&error];
+		if (!error) {
+			return [attrs objectForKey:NSFileModificationDate];
+		} else {
+			TTLOG(@"failure to obtain modification date of key '%@' in cache", key);
+		}
+	} 
+	return [NSDate distantPast];
+}
+
+
 - (void)logMemoryUsage {
   TTLOG(@"======= IMAGE CACHE: %d images, %d pixels ========", _imageCache.count, _totalPixelCount);
   NSEnumerator* e = [_imageCache keyEnumerator];
