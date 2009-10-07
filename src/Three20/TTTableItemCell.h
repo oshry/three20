@@ -52,20 +52,6 @@
 
 @end
 
-@interface TTTableUpdateItemCell : TTTableLinkedItemCell {
-	UILabel* _titleLabel;
-	UILabel* _timestampLabel;
-	TTImageView* _imageView2;
-}
-
-
-@property(nonatomic,readonly,retain) UILabel* titleLabel;
-@property(nonatomic,readonly) UILabel* captionLabel;
-@property(nonatomic,readonly,retain) UILabel* timestampLabel;
-@property(nonatomic,readonly,retain) TTImageView* imageView2;
-
-@end
-
 @interface TTTableMoreButtonCell : TTTableSubtitleItemCell {
   UIActivityIndicatorView* _activityIndicatorView;
   BOOL _animating;
