@@ -357,7 +357,11 @@
       child = controller.topSubcontroller;
     }
     if (child) {
-      controller = child;
+      if (child == _rootViewController) {
+        return child;
+      } else {
+        controller = child;
+      }
     } else {
       return controller;
     }

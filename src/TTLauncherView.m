@@ -44,7 +44,7 @@ static const NSInteger kDefaultColumnCount = 3;
 
 - (CGFloat)rowHeight {
 //  if (UIInterfaceOrientationIsPortrait(TTInterfaceOrientation())) {
-    return 106;
+    return 103;
 //  } else {
 //    return 74;
 //  }
@@ -471,6 +471,10 @@ static const NSInteger kDefaultColumnCount = 3;
 
       [self checkButtonOverflow:pageIndex];
       if (didMove) {
+        if ([_delegate respondsToSelector:@selector(launcherView:didMoveItem:)]) {
+          [_delegate launcherView:self didMoveItem:_dragButton.item];
+        }
+
         [UIView beginAnimations:nil context:nil];
         [UIView setAnimationDuration:TT_TRANSITION_DURATION];
         [self layoutButtons];
@@ -520,7 +524,6 @@ static const NSInteger kDefaultColumnCount = 3;
     _scrollView.alwaysBounceHorizontal = YES;
     _scrollView.pagingEnabled = YES;
     _scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-    _scrollView.clipsToBounds = NO;
     _scrollView.delaysContentTouches = NO;
     _scrollView.multipleTouchEnabled = NO;
     [self addSubview:_scrollView];
@@ -546,6 +549,8 @@ static const NSInteger kDefaultColumnCount = 3;
       item.launcher = nil;
     }
   }
+
+  _scrollView.delegate = nil;
   
   TT_INVALIDATE_TIMER(_editHoldTimer);
   TT_INVALIDATE_TIMER(_springLoadTimer);

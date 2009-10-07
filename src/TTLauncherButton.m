@@ -1,5 +1,3 @@
-// Copyright 2004-2009 Facebook. All Rights Reserved.
-
 #import "Three20/TTLauncherButton.h"
 #import "Three20/TTLauncherItem.h"
 #import "Three20/TTLauncherView.h"
@@ -29,12 +27,14 @@ static const NSInteger kMaxBadgeNumber = 99;
     [self addSubview:_badge];
   }
 
-  if (_item.badgeNumber <= kMaxBadgeNumber) {
-    _badge.text = [NSString stringWithFormat:@"%d", _item.badgeNumber];
-  } else {
-    _badge.text = [NSString stringWithFormat:@"%d+", kMaxBadgeNumber];
+  if (_item.badgeNumber > 0) {
+    if (_item.badgeNumber <= kMaxBadgeNumber) {
+      _badge.text = [NSString stringWithFormat:@"%d", _item.badgeNumber];
+    } else {
+      _badge.text = [NSString stringWithFormat:@"%d+", kMaxBadgeNumber];
+    }
   }
-  _badge.hidden = !_item.badgeNumber;
+  _badge.hidden = _item.badgeNumber <= 0;
   [_badge sizeToFit];
   [self setNeedsLayout];
 }
