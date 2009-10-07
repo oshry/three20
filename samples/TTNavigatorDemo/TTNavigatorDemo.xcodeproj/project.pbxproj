@@ -19,10 +19,17 @@
 		BE8FCAB910017846000767AD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BE8FCAB810017846000767AD /* AppDelegate.m */; };
 		BEBB0E421002B93F00744230 /* ContentController.m in Sources */ = {isa = PBXBuildFile; fileRef = BEBB0E411002B93F00744230 /* ContentController.m */; };
 		BEDCFBB40F4FFF820060B7D1 /* Three20.bundle in Resources */ = {isa = PBXBuildFile; fileRef = BEDCFBB30F4FFF820060B7D1 /* Three20.bundle */; };
-		BEE7FD150F3581C1002788A5 /* libThree20.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEE7FD130F358198002788A5 /* libThree20.a */; };
+		BEE7FD150F3581C1002788A5 /* libThree20-SIM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEE7FD130F358198002788A5 /* libThree20-SIM.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		5B2626AF106BA18B0069B829 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BEE7FD0E0F358198002788A5 /* Three20.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5B5841BB1049563400E421C3;
+			remoteInfo = Three20;
+		};
 		BEE7FD120F358198002788A5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BEE7FD0E0F358198002788A5 /* Three20.xcodeproj */;
@@ -67,7 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BEE7FD150F3581C1002788A5 /* libThree20.a in Frameworks */,
+				BEE7FD150F3581C1002788A5 /* libThree20-SIM.a in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				2892E4100DC94CBA00A64D0F /* CoreGraphics.framework in Frameworks */,
@@ -148,7 +155,8 @@
 		BEE7FD0F0F358198002788A5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				BEE7FD130F358198002788A5 /* libThree20.a */,
+				BEE7FD130F358198002788A5 /* libThree20-SIM.a */,
+				5B2626B0106BA18B0069B829 /* libThree20.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -205,10 +213,17 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		BEE7FD130F358198002788A5 /* libThree20.a */ = {
+		5B2626B0106BA18B0069B829 /* libThree20.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libThree20.a;
+			remoteRef = 5B2626AF106BA18B0069B829 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BEE7FD130F358198002788A5 /* libThree20-SIM.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libThree20-SIM.a";
 			remoteRef = BEE7FD120F358198002788A5 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};

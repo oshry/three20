@@ -25,6 +25,8 @@
 #import "Three20/TTActionSheetController.h"
 #import "Three20/TTPostController.h"
 
+#import "Three20/TTLauncherViewController.h"
+
 #import "Three20/TTView.h"
 #import "Three20/TTImageView.h"
 #import "Three20/TTYouTubeView.h"

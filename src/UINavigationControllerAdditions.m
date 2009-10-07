@@ -3,6 +3,11 @@
 #import "Three20/TTNavigator.h"
 #import "Three20/TTURLMap.h"
 
+#import "Three20/TTLauncherViewController.h"
+
+#import <QuartzCore/QuartzCore.h>
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 @implementation UINavigationController (TTCategory)
@@ -110,32 +115,32 @@
 // public
 
 - (void)pushViewController:(UIViewController*)controller
-    animatedWithTransition:(UIViewAnimationTransition)transition {
-  [TTURLRequestQueue mainQueue].suspended = YES;
+	animatedWithTransition:(UIViewAnimationTransition)transition {
+	[TTURLRequestQueue mainQueue].suspended = YES;
 
-  [self pushViewController:controller animated:NO];
-  
-  [UIView beginAnimations:nil context:nil];
-  [UIView setAnimationDuration:TT_FLIP_TRANSITION_DURATION];
-  [UIView setAnimationDelegate:self];
-    [UIView setAnimationDidStopSelector:@selector(pushAnimationDidStop)];
-  [UIView setAnimationTransition:transition forView:self.view cache:YES];
-  [UIView commitAnimations];
+	[self pushViewController:controller animated:NO];
+	
+	[UIView beginAnimations:nil context:nil];
+	[UIView setAnimationDuration:TT_FLIP_TRANSITION_DURATION];
+	[UIView setAnimationDelegate:self];
+	[UIView setAnimationDidStopSelector:@selector(pushAnimationDidStop)];
+	[UIView setAnimationTransition:transition forView:self.view cache:YES];
+	[UIView commitAnimations];
 }
 
 - (UIViewController*)popViewControllerAnimatedWithTransition:(UIViewAnimationTransition)transition {
-  [TTURLRequestQueue mainQueue].suspended = YES;
+	[TTURLRequestQueue mainQueue].suspended = YES;
 
-  UIViewController* poppedController = [self popViewControllerAnimated:NO];
-  
-  [UIView beginAnimations:nil context:NULL];
-  [UIView setAnimationDuration:TT_FLIP_TRANSITION_DURATION];
-  [UIView setAnimationDelegate:self];
-  [UIView setAnimationDidStopSelector:@selector(pushAnimationDidStop)];
-  [UIView setAnimationTransition:transition forView:self.view cache:NO];
-  [UIView commitAnimations];
-  
-  return poppedController;
+	UIViewController* poppedController = [self popViewControllerAnimated:NO];
+
+	[UIView beginAnimations:nil context:NULL];
+	[UIView setAnimationDuration:TT_FLIP_TRANSITION_DURATION];
+	[UIView setAnimationDelegate:self];
+	[UIView setAnimationDidStopSelector:@selector(pushAnimationDidStop)];
+	[UIView setAnimationTransition:transition forView:self.view cache:NO];
+	[UIView commitAnimations];
+
+	return poppedController;
 }
-
+	
 @end

@@ -5,6 +5,8 @@
 #import "Three20/TTPopupViewController.h"
 #import "Three20/TTSearchDisplayController.h"
 
+#import "Three20/TTLauncherViewController.h"
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 @interface TTNavigatorWindow : UIWindow
@@ -157,16 +159,15 @@
       }
       return NO;
     } else if (parentController) {
-      if ([controller isKindOfClass:[TTPopupViewController class]]) {
-        TTPopupViewController* popupViewController  = (TTPopupViewController*)controller;
-        [self presentPopupController:popupViewController parent:parentController animated:animated];
-      } else if (mode == TTNavigationModeModal) {
-        [self presentModalController:controller parent:parentController animated:animated
-              transition:transition];
-      } else {
-        [parentController addSubcontroller:controller animated:animated transition:transition];
-      }
-    }
+		if ([controller isKindOfClass:[TTPopupViewController class]]) {
+			TTPopupViewController* popupViewController  = (TTPopupViewController*)controller;
+			[self presentPopupController:popupViewController parent:parentController animated:animated];
+		} else if (mode == TTNavigationModeModal) {
+			[self presentModalController:controller parent:parentController animated:animated transition:transition];
+		} else {
+			[parentController addSubcontroller:controller animated:animated transition:transition];
+		}
+	}
   }
   return YES;
 }

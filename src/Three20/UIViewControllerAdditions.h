@@ -1,8 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@interface UIViewController (TTCategory)
-
+@interface UIViewController (TTCategory) 
 /**
  * The default initializer sent to view controllers opened through TTNavigator.
  */

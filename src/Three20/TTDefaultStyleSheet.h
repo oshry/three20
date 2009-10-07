@@ -18,6 +18,7 @@
 @property(nonatomic,readonly) UIColor* searchBarTintColor;
 @property(nonatomic,readonly) UIColor* screenBackgroundColor;
 @property(nonatomic,readonly) UIColor* backgroundColor;
+@property(nonatomic,readonly) UIColor* launcherBackgroundColor;
 
 @property(nonatomic,readonly) UIColor* tableActivityTextColor;
 @property(nonatomic,readonly) UIColor* tableErrorTextColor;

@@ -129,11 +129,18 @@ typedef enum {
 /**
  * The standard duration for transition animations.
  */
-#define TT_TRANSITION_DURATION 0.3
+#define TT_TRANSITION_DURATION					0.3
 
-#define TT_FAST_TRANSITION_DURATION 0.2
+#define TT_FAST_TRANSITION_DURATION				0.2
 
-#define TT_FLIP_TRANSITION_DURATION 0.7
+#define TT_FLIP_TRANSITION_DURATION				0.7
+
+/**
+ * Duration for transitions used by launcher view controller.
+ */
+#define TT_LAUNCHER_SHOW_TRANSITION_DURATION	0.25
+#define TT_LAUNCHER_HIDE_TRANSITION_DURATION	0.3
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

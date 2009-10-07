@@ -519,7 +519,7 @@
 }
 
 - (UIColor*)navigationBarTintColor {
-  return RGBCOLOR(119, 140, 168);
+	return RGBCOLOR(119, 140, 168);
 }
 
 - (UIColor*)toolbarTintColor {
@@ -536,6 +536,10 @@
 
 - (UIColor*)backgroundColor {
   return [UIColor whiteColor];
+}
+
+- (UIColor *)launcherBackgroundColor {
+	return [UIColor blackColor];
 }
 
 - (UIColor*)tableActivityTextColor {
