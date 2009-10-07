@@ -53,6 +53,7 @@
     [TTTableTextItem itemWithText:@"Activity Labels" URL:@"tt://activityTest"],
     [TTTableTextItem itemWithText:@"Scroll View" URL:@"tt://scrollViewTest"],
     [TTTableTextItem itemWithText:@"Launcher" URL:@"tt://launcherTest"],
+	[TTTableTextItem itemWithText:@"Launcher w/ Splash" URL:@"tt://launcherSplashTest"],					 
     nil];
 }
 

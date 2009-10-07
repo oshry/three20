@@ -123,7 +123,6 @@
 
 - (void)launchChild {
 	UIView *viewToLaunch = [[_launcherNavigationController topViewController] view];
-	
 	viewToLaunch.transform = [self transformForOrientation];
 	
 	[self.superController.view addSubview:[_launcherNavigationController view]];
@@ -147,7 +146,6 @@
 	viewToLaunch.transform = CGAffineTransformIdentity;
 	_overlayView.alpha = 0.85f;
 	[UIView commitAnimations];
-		
 }
 
 - (void)addSubcontroller:(UIViewController*)controller animated:(BOOL)animated transition:(UIViewAnimationTransition)transition {

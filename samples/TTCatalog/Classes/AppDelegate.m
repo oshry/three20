@@ -13,6 +13,7 @@
 #import "ActivityTestController.h"
 #import "ScrollViewTestController.h"
 #import "LauncherViewTestController.h"
+#import "LauncherViewSplashController.h"
 #import "StyledTextTestController.h"
 #import "StyledTextTableTestController.h"
 #import "StyleTestController.h"
@@ -50,6 +51,7 @@
   [map from:@"tt://imageTest2" toViewController:[TableImageTestController class]];
   [map from:@"tt://scrollViewTest" toViewController:[ScrollViewTestController class]];
   [map from:@"tt://launcherTest" toViewController:[LauncherViewTestController class]];
+  [map from:@"tt://launcherSplashTest" toViewController:[LauncherViewSplashController class]];  
 
   if (![navigator restoreViewControllers]) {
     [navigator openURL:@"tt://catalog" animated:NO];
