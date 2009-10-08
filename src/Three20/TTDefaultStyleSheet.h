@@ -15,6 +15,7 @@
 
 @property(nonatomic,readonly) UIColor* navigationBarTintColor;
 @property(nonatomic,readonly) UIColor* toolbarTintColor;
+@property(nonatomic,readonly) UIColor* segmentedControlTintColor;
 @property(nonatomic,readonly) UIColor* searchBarTintColor;
 @property(nonatomic,readonly) UIColor* screenBackgroundColor;
 @property(nonatomic,readonly) UIColor* backgroundColor;

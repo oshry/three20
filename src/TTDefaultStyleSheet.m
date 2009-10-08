@@ -547,6 +547,10 @@
   return RGBCOLOR(109, 132, 162);
 }
 
+- (UIColor*)segmentedControlTintColor {
+	return RGBCOLOR(109, 132, 162);
+}
+
 - (UIColor*)searchBarTintColor {
   return RGBCOLOR(200, 200, 200);
 }
