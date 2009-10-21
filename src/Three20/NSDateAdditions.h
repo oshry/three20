@@ -9,6 +9,11 @@
 + (NSDate*)dateWithToday;
 
 /**
+ * Returns a string representing a period in time, e.g. "10-12 Oct 2009", "30 Oct - 01 Nov 2009"
+ */
++ (NSString *)formattedDateTimePeriod:(NSDate *)dateBegin dateEnd:(NSDate *)dateEnd;
+
+/**
  * Returns a copy of the date with the time set to midnight on the same day.
  */
 - (NSDate*)dateAtMidnight;
@@ -62,5 +67,15 @@
  * Formats the date with 'yyyy".
  */
 - (NSString*)formatYear;
+
+/**
+ * Formats the date with 'dd".
+ */
+- (NSString*)formatDayShort;
+
+/**
+ * Formats the date with 'MMM".
+ */
+- (NSString*)formatMonthShort;
 
 @end
