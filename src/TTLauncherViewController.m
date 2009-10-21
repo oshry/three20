@@ -17,6 +17,7 @@
 @implementation TTLauncherViewController
 
 @synthesize launcherNavigationController = _launcherNavigationController;
+@synthesize launcherView = _launcherView;
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
@@ -45,12 +46,35 @@
 	return self;
 }
 
+#pragma mark -
+#pragma mark UITableViewController
+
 - (void)loadView {
 	[super loadView];
 	_launcherView = [[TTLauncherView alloc] initWithFrame:self.view.bounds];
 	_launcherView.backgroundColor = TTSTYLEVAR(launcherBackgroundColor);
 	self.view = _launcherView;
 	
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+	[super viewWillAppear:animated];
+	[_launcherNavigationController viewWillAppear:animated];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+	[_launcherNavigationController viewDidAppear:animated];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+	[super viewWillDisappear:animated];
+	[_launcherNavigationController viewWillDisappear:animated];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+	[super viewDidDisappear:animated];
+	[_launcherNavigationController viewDidDisappear:animated];
 }
 
 - (CGAffineTransform)transformForOrientation {
@@ -132,8 +156,6 @@
 	viewToLaunch.alpha = 0;		
 	viewToLaunch.transform = CGAffineTransformMakeScale(0.00001, 0.00001);
 		
-	[[_launcherNavigationController topViewController] viewWillAppear:YES];
-
 	// Add overlay view
 	[self addOverlayView];
 	
@@ -152,6 +174,7 @@
 	if (!_launcherNavigationController) {
 		_launcherNavigationController = [[UINavigationController alloc] initWithRootViewController:controller];
 		_launcherNavigationController.superController = self;
+		_launcherNavigationController.delegate = self;
 
 		// Add default left-side button in navigation bar
 		UIBarButtonItem *launcherBarButtonItem = [[UIBarButtonItem alloc] initWithImage:TTIMAGE(@"bundle://Three20.bundle/images/launcher.png") style:UIBarButtonItemStyleBordered target:self action:@selector(dismissChild)];
@@ -159,9 +182,11 @@
 		[launcherBarButtonItem release];
 
 		// Launch child
+		[[_launcherNavigationController topViewController] viewWillAppear:animated];
 		[self launchChild];
+		
 	} else {
-		[_launcherNavigationController pushViewController:controller animated:animated];
+		[_launcherNavigationController pushViewController:controller animated:YES];
 	}
 }
 
@@ -173,12 +198,15 @@
 	if (animated) {
 		[self fadeOut];
 	} else {
+		[[_launcherNavigationController topViewController] viewWillDisappear:animated];
 		UIView *viewToDismiss = [_launcherNavigationController view];
 		[viewToDismiss removeFromSuperview];
+		[[_launcherNavigationController topViewController] viewDidDisappear:animated];
 		TT_RELEASE_SAFELY(_launcherNavigationController);
 		[self.superController viewWillAppear:animated];
 		[self.superController viewDidAppear:animated];
 	}
+	[[_launcherNavigationController topViewController] viewDidDisappear:animated];
 }
 
 #pragma mark -
@@ -191,5 +219,21 @@
 	}
 }
 
+
+#pragma mark -
+#pragma mark UINavigationControllerDelegate
+
+
+- (void)navigationController:(UINavigationController *)navigationController 
+							willShowViewController:(UIViewController *)viewController 
+							animated:(BOOL)animated {
+	[viewController viewWillAppear:animated];
+}
+
+- (void)navigationController:(UINavigationController *)navigationController 
+							didShowViewController:(UIViewController *)viewController 
+							animated:(BOOL)animated {
+	[viewController viewDidAppear:animated];
+}
 
 @end

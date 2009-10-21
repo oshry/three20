@@ -7,11 +7,12 @@
 #import "Three20/TTViewController.h"
 #import "Three20/TTLauncherView.h"
 
-@interface TTLauncherViewController : TTViewController {
+@interface TTLauncherViewController : TTViewController <UINavigationControllerDelegate> {
 	UIView *_overlayView;
 	TTLauncherView *_launcherView;
 	UINavigationController *_launcherNavigationController;
 }
 @property(nonatomic, retain) UINavigationController *launcherNavigationController;
+@property(nonatomic, readonly) TTLauncherView *launcherView;
 
 @end

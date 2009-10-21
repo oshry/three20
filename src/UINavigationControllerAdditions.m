@@ -3,8 +3,6 @@
 #import "Three20/TTNavigator.h"
 #import "Three20/TTURLMap.h"
 
-#import "Three20/TTLauncherViewController.h"
-
 #import <QuartzCore/QuartzCore.h>
 
 

@@ -5,8 +5,6 @@
 #import "Three20/TTPopupViewController.h"
 #import "Three20/TTSearchDisplayController.h"
 
-#import "Three20/TTLauncherViewController.h"
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 @interface TTNavigatorWindow : UIWindow
