@@ -378,6 +378,10 @@ static const NSTimeInterval kOvershoot = 2;
 
     _pageArrayIndex = [self arrayIndexForPageIndex:pageIndex relativeToIndex:_centerPageIndex];
     _centerPageIndex = pageIndex;
+	// Rodrigo M.: temporary fix for the problem of not firing
+	// delegate method didMoveToPageAtIndex: as discussed at
+	// http://groups.google.com/group/three20/browse_thread/thread/dffc9166b8e91dbd/f704d0432d74577e?hl=en&lnk=gst&q=TTScrollViewDelegate#f704d0432d74577e
+	[self layoutSubviews]; 
   }
 }
 
