@@ -16,6 +16,41 @@
   return date;
 }
 
++ (NSString *)formattedDateTimePeriod:(NSDate *)dateBegin dateEnd:(NSDate *)dateEnd {
+	NSMutableString *eventTimePeriodString = [[NSMutableString alloc] init];
+	NSDateComponents *tsBeginComponents = [[NSCalendar currentCalendar] components:(NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit) 
+																		  fromDate:dateBegin];
+	NSDateComponents *tsEndComponents = [[NSCalendar currentCalendar] components:(NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit) 
+																		fromDate:dateEnd];
+	
+	
+	if (tsBeginComponents.year == tsEndComponents.year) {
+		if (tsBeginComponents.month == tsEndComponents.month) {
+			if (tsBeginComponents.day == tsEndComponents.day) {
+				// Same day, month & year
+				[eventTimePeriodString appendFormat:@"%@ %@ %@", [dateBegin formatDayShort], 
+															 [dateBegin formatMonthShort],
+															 [dateBegin formatYear]];						
+			} else {
+				// Same month & year but different days
+				[eventTimePeriodString appendFormat:@"%@-%@ %@ %@", [dateBegin formatDayShort], 
+															 [dateEnd formatDayShort], 
+															 [dateBegin formatMonthShort],
+															 [dateBegin formatYear]];			
+			}			
+		} else {
+			// Same year but different months
+			[eventTimePeriodString appendFormat:@"%@ %@ - %@ %@ %@", [dateBegin formatDayShort], 
+															 [dateBegin formatMonthShort], 
+															 [dateEnd formatDayShort],
+															 [dateEnd formatMonthShort],
+															 [dateBegin formatYear]];	
+		}
+	} 
+	return eventTimePeriodString;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // public
 
@@ -140,13 +175,13 @@
 }
 
 - (NSString*)formatMonth {
-  static NSDateFormatter* formatter = nil;
-  if (!formatter) {
-    formatter = [[NSDateFormatter alloc] init];
-    formatter.dateFormat = TTLocalizedString(@"MMMM", @"Date format: July");
-    formatter.locale = TTCurrentLocale();
-  }
-  return [formatter stringFromDate:self];
+	static NSDateFormatter* formatter = nil;
+	if (!formatter) {
+		formatter = [[NSDateFormatter alloc] init];
+		formatter.dateFormat = TTLocalizedString(@"MMMM", @"Date format: July");
+		formatter.locale = TTCurrentLocale();
+	}
+	return [formatter stringFromDate:self];
 }
 
 - (NSString*)formatYear {
@@ -157,6 +192,26 @@
     formatter.locale = TTCurrentLocale();
   }
   return [formatter stringFromDate:self];
+}
+
+- (NSString*)formatDayShort {
+	static NSDateFormatter* formatter = nil;
+	if (!formatter) {
+		formatter = [[NSDateFormatter alloc] init];
+		formatter.dateFormat = TTLocalizedString(@"d", @"Date format: 8");
+		formatter.locale = TTCurrentLocale();
+	}
+	return [formatter stringFromDate:self];
+}
+
+- (NSString*)formatMonthShort {
+	static NSDateFormatter* formatter = nil;
+	if (!formatter) {
+		formatter = [[NSDateFormatter alloc] init];
+		formatter.dateFormat = TTLocalizedString(@"MMM", @"Date format: Sept");
+		formatter.locale = TTCurrentLocale();
+	}
+	return [formatter stringFromDate:self];
 }
 
 @end
