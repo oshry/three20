@@ -119,7 +119,6 @@
 #pragma mark Animation delegates
 
 - (void)showAnimationDidStop {
-	[[_launcherNavigationController topViewController] viewDidAppear:YES];
 }
 
 - (void)fadeAnimationDidStop {

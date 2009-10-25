@@ -733,7 +733,7 @@
 
 - (UIColor*)toolbarButtonTextColorForState:(UIControlState)state {
   if (state & UIControlStateDisabled) {
-    return [UIColor colorWithWhite:1 alpha:0.4];
+	  return [UIColor colorWithWhite:1 alpha:0.4];
   } else {
     return [UIColor whiteColor];
   }
