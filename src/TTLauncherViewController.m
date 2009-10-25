@@ -185,7 +185,7 @@
 		[self launchChild];
 		
 	} else {
-		[_launcherNavigationController pushViewController:controller animated:YES];
+		[_launcherNavigationController addSubcontroller:controller animated:animated transition:transition];
 	}
 }
 
