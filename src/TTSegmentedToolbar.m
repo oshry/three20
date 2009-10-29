@@ -12,6 +12,8 @@
 
 @implementation TTSegmentedToolbar
 
+@synthesize segmentedControl = _segmentedControl;
+
 - (void)dealloc {
 	TT_RELEASE_SAFELY(_segmentedControl);
 	[super dealloc];

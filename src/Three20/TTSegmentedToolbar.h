@@ -15,6 +15,8 @@
 @interface TTSegmentedToolbar : UIToolbar {
 	UISegmentedControl *_segmentedControl;
 }
+@property (nonatomic, readonly) UISegmentedControl *segmentedControl;
+
 - (void)setSegmentedItems:(NSArray *)itemNames;
 
 @end
