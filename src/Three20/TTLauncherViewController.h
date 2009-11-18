@@ -15,6 +15,6 @@
 }
 @property(nonatomic, retain) UINavigationController *launcherNavigationController;
 @property(nonatomic, readonly) TTLauncherView *launcherView;
-@property(nonatomic, assign) UIViewController *launcherNavigationControllerTopViewController;
+@property(nonatomic, retain) UIViewController *launcherNavigationControllerTopViewController;
 
 @end
