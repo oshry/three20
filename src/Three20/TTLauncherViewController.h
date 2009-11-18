@@ -11,8 +11,10 @@
 	UIView *_overlayView;
 	TTLauncherView *_launcherView;
 	UINavigationController *_launcherNavigationController;
+	UIViewController *_launcherNavigationControllerTopViewController;
 }
 @property(nonatomic, retain) UINavigationController *launcherNavigationController;
 @property(nonatomic, readonly) TTLauncherView *launcherView;
+@property(nonatomic, assign) UIViewController *launcherNavigationControllerTopViewController;
 
 @end
