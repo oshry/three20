@@ -26,7 +26,9 @@
 #import "Three20/TTPostController.h"
 #import "Three20/TTTextBarController.h"
 
+// Added by Rodrigo Mazzilli
 #import "Three20/TTLauncherViewController.h"
+#import "Three20/TTSegmentedViewController.h"
 
 #import "Three20/TTView.h"
 #import "Three20/TTImageView.h"

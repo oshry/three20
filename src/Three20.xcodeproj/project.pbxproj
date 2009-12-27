@@ -177,6 +177,10 @@
 		5B5841B51049563400E421C3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		5B5841B61049563400E421C3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		5B5841B71049563400E421C3 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
+		5B9EC389109A3F4900B87D16 /* TTSegmentedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B9EC387109A3F4900B87D16 /* TTSegmentedViewController.m */; };
+		5B9EC38B109A3F4900B87D16 /* TTSegmentedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B9EC387109A3F4900B87D16 /* TTSegmentedViewController.m */; };
+		5B9EC3A9109A454C00B87D16 /* TTSegmentedViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5B9EC3A8109A454C00B87D16 /* TTSegmentedViewController.h */; };
+		5B9EC3AA109A454C00B87D16 /* TTSegmentedViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5B9EC3A8109A454C00B87D16 /* TTSegmentedViewController.h */; };
 		BE1288060F896A0A00F65EA2 /* TTStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = BE1288050F896A0A00F65EA2 /* TTStyle.h */; };
 		BE1288080F896A1900F65EA2 /* TTStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = BE1288070F896A1900F65EA2 /* TTStyle.m */; };
 		BE1288CB0F89812E00F65EA2 /* TTShape.m in Sources */ = {isa = PBXBuildFile; fileRef = BE1288CA0F89812E00F65EA2 /* TTShape.m */; };
@@ -352,6 +356,8 @@
 		5B506F4C107E216E00390D46 /* TTSegmentedToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TTSegmentedToolbar.m; sourceTree = "<group>"; };
 		5B506FA4107E2B2200390D46 /* TTSegmentedToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTSegmentedToolbar.h; path = Three20/TTSegmentedToolbar.h; sourceTree = "<group>"; };
 		5B5841BB1049563400E421C3 /* libThree20.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libThree20.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B9EC387109A3F4900B87D16 /* TTSegmentedViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TTSegmentedViewController.m; sourceTree = "<group>"; };
+		5B9EC3A8109A454C00B87D16 /* TTSegmentedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTSegmentedViewController.h; path = Three20/TTSegmentedViewController.h; sourceTree = "<group>"; };
 		BE1288050F896A0A00F65EA2 /* TTStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTStyle.h; path = Three20/TTStyle.h; sourceTree = "<group>"; };
 		BE1288070F896A1900F65EA2 /* TTStyle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TTStyle.m; sourceTree = "<group>"; };
 		BE1288CA0F89812E00F65EA2 /* TTShape.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TTShape.m; sourceTree = "<group>"; };
@@ -843,10 +849,12 @@
 				BED03765100915820083AC18 /* TTActionSheetController.m */,
 				BEF45BC71019CA8500E9EC07 /* TTPostController.h */,
 				BEF45BC41019CA4400E9EC07 /* TTPostController.m */,
-				5B262C1A106D338D0069B829 /* TTLauncherViewController.h */,
-				5B262BFB106D305F0069B829 /* TTLauncherViewController.m */,
 				BE30DB781056FD7D00FEB457 /* TTTextBarController.h */,
 				BE30DB7A1056FD8700FEB457 /* TTTextBarController.m */,
+				5B262C1A106D338D0069B829 /* TTLauncherViewController.h */,
+				5B262BFB106D305F0069B829 /* TTLauncherViewController.m */,
+				5B9EC3A8109A454C00B87D16 /* TTSegmentedViewController.h */,
+				5B9EC387109A3F4900B87D16 /* TTSegmentedViewController.m */,
 			);
 			name = "View Controllers";
 			sourceTree = "<group>";
@@ -952,6 +960,7 @@
 				5B5841641049563400E421C3 /* TTLauncherItem.h in Headers */,
 				5B262C1C106D338D0069B829 /* TTLauncherViewController.h in Headers */,
 				5B506FA5107E2B2200390D46 /* TTSegmentedToolbar.h in Headers */,
+				5B9EC3A9109A454C00B87D16 /* TTSegmentedViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1043,6 +1052,7 @@
 				5B262C1B106D338D0069B829 /* TTLauncherViewController.h in Headers */,
 				BE30DB791056FD7D00FEB457 /* TTTextBarController.h in Headers */,
 				5B506FA6107E2B2200390D46 /* TTSegmentedToolbar.h in Headers */,
+				5B9EC3AA109A454C00B87D16 /* TTSegmentedViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1189,6 +1199,7 @@
 				5B5841B21049563400E421C3 /* TTLauncherButton.m in Sources */,
 				5B5841B31049563400E421C3 /* TTLauncherItem.m in Sources */,
 				5B506F4E107E216E00390D46 /* TTSegmentedToolbar.m in Sources */,
+				5B9EC389109A3F4900B87D16 /* TTSegmentedViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1277,6 +1288,7 @@
 				5B262BFD106D305F0069B829 /* TTLauncherViewController.m in Sources */,
 				BE30DB7B1056FD8700FEB457 /* TTTextBarController.m in Sources */,
 				5B506F50107E216E00390D46 /* TTSegmentedToolbar.m in Sources */,
+				5B9EC38B109A3F4900B87D16 /* TTSegmentedViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
