@@ -18,6 +18,7 @@
 
 @synthesize launcherNavigationController = _launcherNavigationController;
 @synthesize launcherView = _launcherView;
+@synthesize launcherNavigationControllerTopViewController = _launcherNavigationControllerTopViewController;
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
@@ -42,6 +43,7 @@
 	if (self = [super init]) {
 		_launcherNavigationController = nil;
 		_overlayView = nil;
+		_launcherNavigationControllerTopViewController = nil;
 	}
 	return self;
 }
@@ -186,6 +188,7 @@
 		
 	} else {
 		[_launcherNavigationController addSubcontroller:controller animated:animated transition:transition];
+		self.launcherNavigationControllerTopViewController = controller;
 	}
 }
 
@@ -226,13 +229,17 @@
 - (void)navigationController:(UINavigationController *)navigationController 
 							willShowViewController:(UIViewController *)viewController 
 							animated:(BOOL)animated {
+	[_launcherNavigationControllerTopViewController viewWillDisappear:animated];
 	[viewController viewWillAppear:animated];
 }
 
 - (void)navigationController:(UINavigationController *)navigationController 
 							didShowViewController:(UIViewController *)viewController 
 							animated:(BOOL)animated {
+	[_launcherNavigationControllerTopViewController viewDidDisappear:animated];
 	[viewController viewDidAppear:animated];
+	
+	self.launcherNavigationControllerTopViewController = viewController;
 }
 
 @end
