@@ -7,6 +7,7 @@
 
 #import "TTSegmentedViewController.h"
 
+#import "Three20/Three20.h"
 #import "Three20/TTSegmentedToolbar.h"
 
 @implementation TTSegmentedViewController

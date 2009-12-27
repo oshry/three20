@@ -6,6 +6,8 @@
 //
 
 #import "TTSegmentedToolbar.h"
+
+#import "Three20/Three20.h"
 #import "Three20/TTDefaultStyleSheet.h"
 
 #define	kMargin		8.0f

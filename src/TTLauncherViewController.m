@@ -6,6 +6,8 @@
 
 
 #import "Three20/TTLauncherViewController.h"
+
+#import "Three20/Three20.h"
 #import "Three20/TTDefaultStyleSheet.h"
 #import "Three20/TTURLCache.h"
 

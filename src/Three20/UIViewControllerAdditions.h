@@ -1,7 +1,26 @@
+//
+// Copyright 2009 Facebook
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@interface UIViewController (TTCategory) 
+#import "Three20/TTGlobalCore.h"
+
+@interface UIViewController (TTCategory)
+
 /**
  * The default initializer sent to view controllers opened through TTNavigator.
  */
@@ -42,14 +61,29 @@
  * This would be the selected view controller of a tab bar controller, or the top 
  * view controller of a navigation controller.  This property offers custom UIViewController
  * subclasses the chance to tell TTNavigator how to follow the hierarchy of view controllers.
- 
  */
 - (UIViewController*)topSubcontroller;
 
 /**
  * The view controller that comes before this one in a navigation controller's history.
+ *
+ * This is an App Store-compatible version of previousViewController.
  */
-- (UIViewController*)previousViewController;
+- (UIViewController*)ttPreviousViewController;
+
+#ifdef DEBUG
+
+/**
+ * The view controller that comes before this one in a navigation controller's history.
+ *
+ * This has been deprecated due to App Store rejections. Please use ttPreviousViewController
+ * from now on.
+ *
+ * @deprecated
+ */
+- (UIViewController*)previousViewController __TTDEPRECATED_METHOD;
+
+#endif
 
 /**
  * The view controller that comes after this one in a navigation controller's history.
@@ -102,6 +136,10 @@
  * This will be called when TTNavigator is persisting the navigation history so that it
  * can later be restored.  This usually happens when the app quits, or when there is a low
  * memory warning.
+ *
+ * Return NO to avoid adding this controller to the navigation history.
+ *
+ * Default return value: YES
  */
 - (BOOL)persistView:(NSMutableDictionary*)state;
 

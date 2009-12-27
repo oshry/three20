@@ -1,7 +1,29 @@
-#import "TTTextBarController.h"
-#import "TTButton.h"
-#import "TTNavigator.h"
-#import "TTDefaultStyleSheet.h"
+//
+// Copyright 2009 Facebook
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+#import "Three20/TTTextBarController.h"
+
+#import "Three20/TTGlobalCore.h"
+#import "Three20/TTGlobalCoreLocale.h"
+#import "Three20/TTGlobalUI.h"
+#import "Three20/TTGlobalUINavigator.h"
+
+#import "Three20/TTButton.h"
+#import "Three20/TTNavigator.h"
+#import "Three20/TTDefaultStyleSheet.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // global
@@ -13,7 +35,8 @@ static CGFloat kPadding = 5;
 
 @implementation TTTextBarController
 
-@synthesize delegate = _delegate, textEditor = _textEditor, postButton = _postButton;
+@synthesize delegate = _delegate, textEditor = _textEditor, postButton = _postButton,
+            footerBar = _footerBar;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // private
@@ -25,6 +48,7 @@ static CGFloat kPadding = 5;
 }
 
 - (void)dismissAnimationDidStop {
+  [self release];
 }
 
 - (void)dismissWithCancel {
@@ -45,6 +69,7 @@ static CGFloat kPadding = 5;
     _defaultText = nil;
     _textEditor = nil;
     _postButton = nil;
+    _footerBar = nil;
     _previousRightBarButtonItem = nil;
 
     if (query) {
@@ -62,6 +87,7 @@ static CGFloat kPadding = 5;
 - (void)dealloc {
   TT_RELEASE_SAFELY(_result);
   TT_RELEASE_SAFELY(_defaultText);
+  TT_RELEASE_SAFELY(_footerBar);
   TT_RELEASE_SAFELY(_previousRightBarButtonItem);
   [super dealloc];
 }
@@ -70,43 +96,93 @@ static CGFloat kPadding = 5;
 // UIViewController
 
 - (void)loadView {
-  TTView* textBar = [[TTView alloc] init];
-  textBar.style = TTSTYLE(textBar);
-  [textBar addSubview:self.textEditor];  
-  [textBar addSubview:self.postButton];
+  CGSize screenSize = TTScreenBounds().size;
 
+  self.view = [[[UIView alloc] init] autorelease];
+  _textBar = [[TTView alloc] init];
+  _textBar.style = TTSTYLE(textBar);
+  [self.view addSubview:_textBar];
+
+  [_textBar addSubview:self.textEditor];  
+  [_textBar addSubview:self.postButton];
+  
   [self.postButton sizeToFit];
-  _postButton.frame = CGRectMake(TTScreenBounds().size.width - (_postButton.width + kPadding),
-                                 kMargin+kPadding, _postButton.width, 27);
+  _postButton.frame = CGRectMake(screenSize.width - (_postButton.width + kPadding),
+                                 kMargin+kPadding, _postButton.width, 0);
 
-  _textEditor.frame = CGRectMake(5, kMargin,
-                                 TTScreenBounds().size.width - (_postButton.width+kPadding+5), 0);
+  _textEditor.frame = CGRectMake(kPadding, kMargin,
+                                 screenSize.width - (_postButton.width+kPadding*2), 0);
   [_textEditor sizeToFit];
+  _postButton.height = _textEditor.size.height - 8;
+  
+  _textBar.frame = CGRectMake(0, 0,
+                              screenSize.width, _textEditor.height+kMargin*2);
 
-  textBar.frame = CGRectMake(0, TTScreenBounds().size.height - (TTKeyboardHeight() + _textEditor.height),
-                             TTScreenBounds().size.width+kMargin, _textEditor.height+kMargin*2);
+  self.view.frame = CGRectMake(0, screenSize.height - (TTKeyboardHeight() + _textEditor.height),
+                              screenSize.width, _textEditor.height+kMargin*2);
 
+  if (_footerBar) {
+    _footerBar.frame = CGRectMake(0, _textBar.height, screenSize.width, _footerBar.height);
+    [self.view addSubview:_footerBar];
+    self.view.top -= _footerBar.height;
+    self.view.height += _footerBar.height;
+  }
+  
+  self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth
+                              | UIViewAutoresizingFlexibleTopMargin;
   _postButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin
                                  | UIViewAutoresizingFlexibleLeftMargin;
   _textEditor.autoresizingMask = UIViewAutoresizingFlexibleRightMargin;
-  textBar.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
-
-  self.view = textBar;
+  _textBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+  _footerBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 }
 
 - (void)viewDidUnload {
   [super viewDidUnload];
+  TT_RELEASE_SAFELY(_textBar);
   TT_RELEASE_SAFELY(_textEditor);
   TT_RELEASE_SAFELY(_postButton);
   TT_RELEASE_SAFELY(_previousRightBarButtonItem);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// UIViewController (TTCategory)
+
+- (BOOL)persistView:(NSMutableDictionary*)state {
+  [state setObject:[NSNumber numberWithBool:YES] forKey:@"__important__"];
+
+  NSString* delegate = [[TTNavigator navigator] pathForObject:_delegate];
+  if (delegate) {
+    [state setObject:delegate forKey:@"delegate"];
+  }
+  [state setObject:_textEditor.text forKey:@"text"];
+  
+  NSString* title = self.navigationItem.title;
+  
+  if (title) {
+    [state setObject:title forKey:@"title"];
+  }
+  
+  return [super persistView:state];
+}
+
+- (void)restoreView:(NSDictionary*)state {
+  [super restoreView:state];
+  NSString* delegate = [state objectForKey:@"delegate"];
+  if (delegate) {
+    _delegate = [[TTNavigator navigator] objectForPath:delegate];
+  }
+  NSString* title = [state objectForKey:@"title"];
+  if (title) {
+    self.navigationItem.title = title;
+  }
+  _defaultText = [[state objectForKey:@"text"] retain];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // TTPopupViewController
 
 - (void)showInView:(UIView*)view animated:(BOOL)animated {
-  [self retain];
-    
   self.view.transform = TTRotateTransformForOrientation(TTInterfaceOrientation());
   [view addSubview:self.view];
   
@@ -125,11 +201,9 @@ static CGFloat kPadding = 5;
 - (void)dismissPopupViewControllerAnimated:(BOOL)animated {
   if (animated) {
     [_textEditor resignFirstResponder];
-    [self performSelector:@selector(release) withObject:nil afterDelay:TT_TRANSITION_DURATION];
   } else {
     UIViewController* superController = self.superController;
     [self.view removeFromSuperview];
-    [self release];
     superController.popupViewController = nil;
     [superController viewWillAppear:animated];
     [superController viewDidAppear:animated];
@@ -140,13 +214,15 @@ static CGFloat kPadding = 5;
 // TTTextEditorDelegate
 
 - (void)textEditorDidBeginEditing:(TTTextEditor*)textEditor {
+  [self retain];
+  
   _originTop = self.view.top;
   
-  UIViewController* controller = [TTNavigator navigator].topViewController;
+  UIViewController* controller = self.view.viewController;
   _previousRightBarButtonItem = [controller.navigationItem.rightBarButtonItem retain];
-  controller.navigationItem.rightBarButtonItem =
+  [controller.navigationItem setRightBarButtonItem:
     [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-                              target:self action:@selector(cancel)] autorelease];
+                              target:self action:@selector(cancel)] autorelease] animated:YES];
 
   [UIView beginAnimations:nil context:nil];
   [UIView setAnimationDuration:TT_TRANSITION_DURATION];
@@ -164,11 +240,9 @@ static CGFloat kPadding = 5;
 }
 
 - (void)textEditorDidEndEditing:(TTTextEditor*)textEditor {
-  if (_previousRightBarButtonItem) {
-    UIViewController* controller = [TTNavigator navigator].topViewController;
-    controller.navigationItem.rightBarButtonItem = _previousRightBarButtonItem;
-    TT_RELEASE_SAFELY(_previousRightBarButtonItem);
-  }
+  UIViewController* controller = self.view.viewController;
+  [controller.navigationItem setRightBarButtonItem:_previousRightBarButtonItem animated:YES];
+  TT_RELEASE_SAFELY(_previousRightBarButtonItem);
 
   [UIView beginAnimations:nil context:nil];
   [UIView setAnimationDuration:TT_TRANSITION_DURATION];
@@ -192,6 +266,8 @@ static CGFloat kPadding = 5;
   CGRect frame = self.view.frame;
   frame.origin.y -= height;
   frame.size.height += height;
+  _textBar.height += height;
+  _footerBar.top += height;
   self.view.frame = frame;
   
   return YES;
@@ -217,7 +293,7 @@ static CGFloat kPadding = 5;
     _textEditor.backgroundColor = [UIColor clearColor];
     _textEditor.autoresizesToText = YES;
     _textEditor.maxNumberOfLines = 6;
-    _textEditor.font = [UIFont systemFontOfSize:15];
+    _textEditor.font = [UIFont systemFontOfSize:16];
   }
   return _textEditor;
 }
@@ -237,6 +313,9 @@ static CGFloat kPadding = 5;
   if ([_delegate respondsToSelector:@selector(textBar:willPostText:)]) {
     shouldDismiss = [_delegate textBar:self willPostText:_textEditor.text];
   }
+
+  _textEditor.text = @"";
+  _postButton.enabled = NO;
   
   if (shouldDismiss) {
     [self dismissWithResult:nil animated:YES];

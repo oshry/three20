@@ -1,4 +1,23 @@
+//
+// Copyright 2009 Facebook
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
 #import "Three20/TTDefaultStyleSheet.h"
+
+#import "Three20/TTGlobalUI.h"
+
 #import "Three20/TTStyle.h"
 #import "Three20/TTShape.h"
 #import "Three20/TTURLCache.h"
@@ -126,6 +145,15 @@
   return
     [TTLinearGradientFillStyle styleWithColor1:highlight color2:color next:
     [TTFourBorderStyle styleWithTop:nil right:nil bottom:shadow left:nil width:1 next:nil]];
+}
+
+- (TTStyle*)searchBarBottom {
+  UIColor* color = TTSTYLEVAR(searchBarTintColor);
+  UIColor* highlight = [color multiplyHue:0 saturation:0 value:1.2];
+  UIColor* shadow = [color multiplyHue:0 saturation:0 value:0.82];
+  return
+    [TTLinearGradientFillStyle styleWithColor1:highlight color2:color next:
+    [TTFourBorderStyle styleWithTop:shadow right:nil bottom:nil left:nil width:1 next:nil]];
 }
 
 - (TTStyle*)blackSearchBar {
@@ -378,12 +406,16 @@
 
 - (TTStyle*)tabOverflowLeft {
   UIImage* image = TTIMAGE(@"bundle://Three20.bundle/images/overflowLeft.png");
-  return [TTImageStyle styleWithImage:image next:nil];
+  TTImageStyle *style = [TTImageStyle styleWithImage:image next:nil];
+  style.contentMode = UIViewContentModeCenter;
+  return style;
 }
 
 - (TTStyle*)tabOverflowRight {
   UIImage* image = TTIMAGE(@"bundle://Three20.bundle/images/overflowRight.png");
-  return [TTImageStyle styleWithImage:image next:nil];
+  TTImageStyle *style = [TTImageStyle styleWithImage:image next:nil];
+  style.contentMode = UIViewContentModeCenter;
+  return style;
 }
 
 - (TTStyle*)rounded {
@@ -476,18 +508,27 @@
 }
 
 - (TTStyle*)textBar {
-  UIColor* color = TTSTYLEVAR(searchBarTintColor);
-  UIColor* highlight = [color multiplyHue:0 saturation:0 value:1.2];
-  UIColor* shadow = [color multiplyHue:0 saturation:0 value:0.82];
   return
-    [TTLinearGradientFillStyle styleWithColor1:highlight color2:color next:
-    [TTFourBorderStyle styleWithTop:shadow right:nil bottom:nil left:nil width:1 next:nil]];
+    [TTLinearGradientFillStyle styleWithColor1:RGBCOLOR(237, 239, 241)
+                               color2:RGBCOLOR(206, 208, 212) next:
+    [TTFourBorderStyle styleWithTop:RGBCOLOR(187, 189, 190) right:nil bottom:nil left:nil width:1 next:
+    [TTFourBorderStyle styleWithTop:RGBCOLOR(255, 255, 255) right:nil bottom:nil left:nil width:1
+                       next:nil]]];
+}
+
+- (TTStyle*)textBarFooter {
+  return
+    [TTLinearGradientFillStyle styleWithColor1:RGBCOLOR(206, 208, 212)
+                               color2:RGBCOLOR(184, 186, 190) next:
+    [TTFourBorderStyle styleWithTop:RGBCOLOR(161, 161, 161) right:nil bottom:nil left:nil width:1 next:
+    [TTFourBorderStyle styleWithTop:RGBCOLOR(230, 232, 235) right:nil bottom:nil left:nil width:1
+                       next:nil]]];
 }
 
 - (TTStyle*)textBarTextField {
   return 
     [TTInsetStyle styleWithInset:UIEdgeInsetsMake(6, 0, 3, 6) next:
-    [TTShapeStyle styleWithShape:[TTRoundedRectangleShape shapeWithRadius:11] next:
+    [TTShapeStyle styleWithShape:[TTRoundedRectangleShape shapeWithRadius:12.5] next:
     [TTInsetStyle styleWithInset:UIEdgeInsetsMake(1, 0, 1, 0) next:
     [TTShadowStyle styleWithColor:RGBACOLOR(255,255,255,0.4) blur:0 offset:CGSizeMake(0, 1) next:
     [TTSolidFillStyle styleWithColor:TTSTYLEVAR(backgroundColor) next:
@@ -497,11 +538,24 @@
 }
 
 - (TTStyle*)textBarPostButton:(UIControlState)state {
-  return
-    [self toolbarButtonForState:state
-          shape:[TTRoundedRectangleShape shapeWithRadius:TT_ROUNDED]
-          tintColor:TTSTYLEVAR(postButtonColor)
-          font:[UIFont boldSystemFontOfSize:14]];
+  UIColor* fillColor = state == UIControlStateHighlighted
+                       ? RGBCOLOR(19, 61, 126)
+                       : RGBCOLOR(31, 100, 206);
+  UIColor* textColor = state == UIControlStateDisabled
+                       ? RGBACOLOR(255, 255, 255, 0.5)
+                       : RGBCOLOR(255, 255, 255);
+  return 
+    [TTShapeStyle styleWithShape:[TTRoundedRectangleShape shapeWithRadius:13] next:
+    [TTInsetStyle styleWithInset:UIEdgeInsetsMake(2, 0, 1, 0) next:
+    [TTShadowStyle styleWithColor:RGBACOLOR(255,255,255,0.5) blur:0 offset:CGSizeMake(0, 1) next:
+    [TTReflectiveFillStyle styleWithColor:fillColor next:
+    [TTLinearGradientBorderStyle styleWithColor1:fillColor
+                                 color2:RGBCOLOR(14, 83, 187) width:1 next:
+    [TTInsetStyle styleWithInset:UIEdgeInsetsMake(0, -1, 0, -1) next:
+    [TTBoxStyle styleWithPadding:UIEdgeInsetsMake(8, 9, 8, 9) next:
+    [TTTextStyle styleWithFont:[UIFont boldSystemFontOfSize:15]
+                 color:textColor shadowColor:[UIColor colorWithWhite:0 alpha:0.3]
+                 shadowOffset:CGSizeMake(0, -1) next:nil]]]]]]]];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

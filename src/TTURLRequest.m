@@ -1,6 +1,26 @@
+//
+// Copyright 2009 Facebook
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
 #import "Three20/TTURLRequest.h"
+
+#import "Three20/TTGlobalCore.h"
+
 #import "Three20/TTURLResponse.h"
 #import "Three20/TTURLRequestQueue.h"
+
 #import <CommonCrypto/CommonDigest.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,17 +37,18 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
   timestamp = _timestamp, userInfo = _userInfo, isLoading = _isLoading,
   shouldHandleCookies = _shouldHandleCookies, totalBytesLoaded = _totalBytesLoaded,
   totalBytesExpected = _totalBytesExpected, respondedFromCache = _respondedFromCache,
-  headers = _headers;
+  headers = _headers, filterPasswordLogging = _filterPasswordLogging,
+  charsetForMultipart = _charsetForMultipart;
 
 + (TTURLRequest*)request {
   return [[[TTURLRequest alloc] init] autorelease];
 }
 
-+ (TTURLRequest*)requestWithURL:(NSString*)URL delegate:(id<TTURLRequestDelegate>)delegate {
++ (TTURLRequest*)requestWithURL:(NSString*)URL delegate:(id /*<TTURLRequestDelegate>*/)delegate {
   return [[[TTURLRequest alloc] initWithURL:URL delegate:delegate] autorelease];
 }
 
-- (id)initWithURL:(NSString*)URL delegate:(id<TTURLRequestDelegate>)delegate {
+- (id)initWithURL:(NSString*)URL delegate:(id /*<TTURLRequestDelegate>*/)delegate {
   if (self = [self init]) {
     _URL = [URL retain];
     if (delegate) {
@@ -49,7 +70,7 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
     _files = nil;
     _response = nil;
     _cachePolicy = TTURLRequestCachePolicyDefault;
-    _cacheExpirationAge = 0;
+    _cacheExpirationAge = TT_DEFAULT_CACHE_EXPIRATION_AGE;
     _timestamp = nil;
     _cacheKey = nil;
     _userInfo = nil;
@@ -58,6 +79,8 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
     _totalBytesLoaded = 0;
     _totalBytesExpected = 0;
     _respondedFromCache = NO;
+    _filterPasswordLogging = NO;
+    _charsetForMultipart = NSUTF8StringEncoding;
   }
   return self;
 }
@@ -128,8 +151,8 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
       [body appendData:[beginLine dataUsingEncoding:NSUTF8StringEncoding]];        
       [body appendData:[[NSString
         stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n", key]
-          dataUsingEncoding:NSUTF8StringEncoding]];
-      [body appendData:[value dataUsingEncoding:NSUTF8StringEncoding]];
+          dataUsingEncoding:_charsetForMultipart]];
+      [body appendData:[value dataUsingEncoding:_charsetForMultipart]];
     }
   }
 
@@ -144,13 +167,13 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
       [body appendData:[[NSString stringWithFormat:
                        @"Content-Disposition: form-data; name=\"%@\"; filename=\"image.jpg\"\r\n",
                        key]
-          dataUsingEncoding:NSUTF8StringEncoding]];
+          dataUsingEncoding:_charsetForMultipart]];
       [body appendData:[[NSString
         stringWithFormat:@"Content-Length: %d\r\n", data.length]
-          dataUsingEncoding:NSUTF8StringEncoding]];  
+          dataUsingEncoding:_charsetForMultipart]];  
       [body appendData:[[NSString
         stringWithString:@"Content-Type: image/jpeg\r\n\r\n"]
-          dataUsingEncoding:NSUTF8StringEncoding]];  
+          dataUsingEncoding:_charsetForMultipart]];  
       [body appendData:data];
       imageKey = key;
     }
@@ -165,11 +188,11 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
     [body appendData:[[NSString stringWithFormat:
                        @"Content-Disposition: form-data; name=\"%@\"; filename=\"%@\"\r\n",
                        fileName, fileName]
-          dataUsingEncoding:NSUTF8StringEncoding]];
+          dataUsingEncoding:_charsetForMultipart]];
     [body appendData:[[NSString stringWithFormat:@"Content-Length: %d\r\n", data.length]
-          dataUsingEncoding:NSUTF8StringEncoding]];  
+          dataUsingEncoding:_charsetForMultipart]];  
     [body appendData:[[NSString stringWithFormat:@"Content-Type: %@\r\n\r\n", mimeType]
-          dataUsingEncoding:NSUTF8StringEncoding]];  
+          dataUsingEncoding:_charsetForMultipart]];  
     [body appendData:data];
   }
 
@@ -182,7 +205,7 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
     [_parameters removeObjectForKey:imageKey];
   }
 
-  //TTLOG(@"Sending %s", [body bytes]);
+  TTDCONDITIONLOG(TTDFLAG_URLREQUEST, @"Sending %s", [body bytes]);
   return body;
 }
 
@@ -241,9 +264,23 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 
 - (BOOL)send {
   if (_parameters) {
-    TTLOG(@"SEND %@ %@", self.URL, self.parameters);
+    // Don't log passwords. Save now, restore after logging
+    NSString *password = [_parameters objectForKey:@"password"];
+    if (_filterPasswordLogging && password) {
+      [_parameters setObject:@"[FILTERED]" forKey:@"password"];
+    }
+
+    TTDCONDITIONLOG(TTDFLAG_URLREQUEST, @"SEND %@ %@", self.URL, self.parameters);
+
+    if (password) {
+      [_parameters setObject:password forKey:@"password"];
+    }
   }
   return [[TTURLRequestQueue mainQueue] sendRequest:self];
+}
+
+- (BOOL)sendSynchronously {
+  return [[TTURLRequestQueue mainQueue] sendSynchronousRequest:self];
 }
 
 - (void)cancel {
