@@ -71,8 +71,8 @@
 
 #define TT_FLIP_TRANSITION_DURATION 0.7
 
-#define	TT_LAUNCHER_SHOW_TRANSITION_DURATION 0.6
-#define TT_LAUNCHER_HIDE_TRANSITION_DURATION 0.4
+#define	TT_LAUNCHER_SHOW_TRANSITION_DURATION 0.25
+#define TT_LAUNCHER_HIDE_TRANSITION_DURATION 0.3
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Images
