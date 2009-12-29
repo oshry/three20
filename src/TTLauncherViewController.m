@@ -149,9 +149,10 @@
 
 
 - (void)launchChild {
+
 	UIView *viewToLaunch = [[_launcherNavigationController topViewController] view];
 	viewToLaunch.transform = [self transformForOrientation];
-	
+
 	[self.superController.view addSubview:[_launcherNavigationController view]];
 	_launcherNavigationController.superController = self;
 	
@@ -185,7 +186,6 @@
 		[launcherBarButtonItem release];
 
 		// Launch child
-		[[_launcherNavigationController topViewController] viewWillAppear:animated];
 		[self launchChild];
 		
 	} else {
