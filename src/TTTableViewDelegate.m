@@ -86,7 +86,13 @@ static const CGFloat kSectionHeaderHeight = 35;
   if ([object isKindOfClass:[TTTableLinkedItem class]]) {
     TTTableLinkedItem* item = object;
     if (item.URL && [_controller shouldOpenURL:item.URL]) {
-      TTOpenURL(item.URL);
+		if (item.userInfo && [item.userInfo isKindOfClass:[NSDictionary class]]) {
+			// Fix discussed in http://groups.google.com/group/three20/browse_thread/thread/e083199283dceb7e
+			// TTTableItem allows any object. TTNavigator however expects a dictionary.
+			[[TTNavigator navigator] openURL:item.URL query:item.userInfo animated:YES];
+		} else {
+			TTOpenURL(item.URL);
+		}
     }
 
     if ([object isKindOfClass:[TTTableButton class]]) {
