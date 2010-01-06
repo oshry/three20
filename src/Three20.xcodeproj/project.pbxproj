@@ -1292,7 +1292,7 @@
 					"-ObjC",
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = "Three20-SIM";
+				PRODUCT_NAME = Three20;
 				ZERO_LINK = NO;
 			};
 			name = Release;
