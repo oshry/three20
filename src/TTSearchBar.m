@@ -40,7 +40,8 @@ static const CGFloat kIndexViewMargin = 4;
 @implementation TTSearchBar
 
 @synthesize boxView = _boxView, tintColor = _tintColor, textFieldStyle = _textFieldStyle,
-            showsCancelButton = _showsCancelButton, showsSearchIcon = _showsSearchIcon;
+			showsCancelButton = _showsCancelButton, showsSearchIcon = _showsSearchIcon;
+@dynamic tableIsFixed;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // private
@@ -345,6 +346,14 @@ static const CGFloat kIndexViewMargin = 4;
 
 - (void)showSearchResults:(BOOL)show {
   [_searchField showSearchResults:show];
+}
+
+- (void)setTableIsFixed:(BOOL)fixed {
+	[_searchField setTableIsFixed:fixed];
+}
+
+- (BOOL)tableIsFixed {
+	return _searchField.tableIsFixed;
 }
 
 @end
