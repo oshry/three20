@@ -33,9 +33,6 @@
   BOOL _searchesAutomatically;
   BOOL _showsDoneButton;
   BOOL _showsDarkScreen;
-  // Rodrigo: workaround to allow results to be fixed.
-  BOOL _tableIsFixed;
-  UIView *_tableSuperview;
 }
 
 @property(nonatomic,retain) id<TTTableViewDataSource> dataSource;
@@ -45,12 +42,6 @@
 @property(nonatomic) BOOL searchesAutomatically;
 @property(nonatomic) BOOL showsDoneButton;
 @property(nonatomic) BOOL showsDarkScreen;
-// Rodrigo: TTSearchTextField was designed to be inside a UIScrollView, i.e. typically by
-// being inside an UITableView header. When presenting results, TTSearchTextField per default
-// removes the table from superview and adds it in a different location, typically
-// limiting the height because keyboard is open.
-// This workaround allows the results table to remain fixed.
-@property(nonatomic) BOOL tableIsFixed;
 
 - (void)search;
 

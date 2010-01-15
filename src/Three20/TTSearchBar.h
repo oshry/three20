@@ -47,12 +47,6 @@
 @property(nonatomic) BOOL showsDoneButton;
 @property(nonatomic) BOOL showsDarkScreen;
 @property(nonatomic) BOOL showsSearchIcon;
-// Rodrigo: TTSearchBar was designed to be inside a UIScrollView, i.e. typically by
-// being a UITableView header. When presenting results, TTSearchTextField per default
-// removes the table from superview and adds it in a different location, typically
-// limiting the height because keyboard is open.
-// This workaround allows the results table to remain fixed.
-@property(nonatomic) BOOL tableIsFixed;
 
 - (void)search;
 

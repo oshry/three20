@@ -140,7 +140,7 @@ static const CGFloat kDesiredTableHeight = 150;
 
 @synthesize dataSource = _dataSource, tableView = _tableView, rowHeight = _rowHeight,
   searchesAutomatically = _searchesAutomatically, showsDoneButton = _showsDoneButton,
-  showsDarkScreen = _showsDarkScreen, tableIsFixed = _tableIsFixed;
+  showsDarkScreen = _showsDarkScreen;
 
 - (id)initWithFrame:(CGRect)frame {
   if (self = [super initWithFrame:frame]) {
@@ -155,7 +155,6 @@ static const CGFloat kDesiredTableHeight = 150;
     _rowHeight = 0;
     _showsDoneButton = NO;
     _showsDarkScreen = NO;
-	_tableIsFixed = NO;
 
     self.autocorrectionType = UITextAutocorrectionTypeNo;
     self.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
@@ -447,31 +446,20 @@ static const CGFloat kDesiredTableHeight = 150;
     }
 
     if (!_tableView.superview) {
-		if (_tableIsFixed && _tableSuperview) {
-			[_tableSuperview addSubview:_tableView];
-			_shadowView.frame = CGRectMake(_tableView.left, _tableView.top-1,
-										   _tableView.width, kShadowHeight);
-			if (_tableView.separatorStyle != UITableViewCellSeparatorStyleNone) {
-				[_tableSuperview addSubview:_shadowView];
-			}						
-		} else {
-			_tableView.frame = [self rectForSearchResults:YES];
-			_shadowView.frame = CGRectMake(_tableView.left, _tableView.top-1,
-										   _tableView.width, kShadowHeight);
-			
-			UIView* superview = self.superviewForSearchResults;
-			[superview addSubview:_tableView];
-			
-			if (_tableView.separatorStyle != UITableViewCellSeparatorStyleNone) {
-				[superview addSubview:_shadowView];
-			}			
-		}
+      _tableView.frame = [self rectForSearchResults:YES];
+      _shadowView.frame = CGRectMake(_tableView.left, _tableView.top-1,
+                                     _tableView.width, kShadowHeight);
+      
+      UIView* superview = self.superviewForSearchResults;
+      [superview addSubview:_tableView];
+
+      if (_tableView.separatorStyle != UITableViewCellSeparatorStyleNone) {
+        [superview addSubview:_shadowView];
+      }
     }
     
     [_tableView deselectRowAtIndexPath:_tableView.indexPathForSelectedRow animated:NO];
   } else {
-	// Rodrigo: we need to keep a reference of original superview
-	_tableSuperview = [_tableView superview];
     [_tableView removeFromSuperview];
     [_shadowView removeFromSuperview];
   }
