@@ -11,6 +11,8 @@
 #import "Three20/TTDefaultStyleSheet.h"
 #import "Three20/TTURLCache.h"
 
+#define TTLAUNCHERVIEW_MAX_SIZE		CGSizeMake(320.0f, 426.0f)
+
 @interface TTLauncherViewController (Private)
 - (void)dismissChildAnimated:(BOOL)animated;
 @end
@@ -54,10 +56,13 @@
 #pragma mark UITableViewController
 
 - (void)loadView {
-	[super loadView];
+	[super loadView];	
 	_launcherView = [[TTLauncherView alloc] initWithFrame:self.view.bounds];
 	_launcherView.backgroundColor = TTSTYLEVAR(launcherBackgroundColor);
-	self.view = _launcherView;
+	//self.view = _launcherView;
+	[self.view addSubview:_headerView];
+	[self.view addSubview:_launcherView];
+	[self.view addSubview:_footerView];
 	
 }
 
@@ -242,6 +247,49 @@
 	[viewController viewDidAppear:animated];
 	
 	self.launcherNavigationControllerTopViewController = viewController;
+}
+
+#pragma mark -
+#pragma mark Layout subviews
+
+- (void)layoutSubviews {
+	CGFloat headerHeight = 0.0f;
+	CGFloat footerHeight = 0.0f;
+	if (_headerView) {
+		[_headerView setFrame:CGRectMake(0.0f, 0.0f, _headerView.frame.size.width,  _headerView.frame.size.height)];
+		headerHeight = _headerView.frame.size.height;
+	}
+
+	if (_footerView) {
+		footerHeight = _footerView.frame.size.height;
+		[_footerView setFrame:CGRectMake(0.0f, self.view.bounds.size.height - footerHeight, _footerView.frame.size.width,  footerHeight)];
+	}	
+	[self.view addSubview:_headerView];
+	[self.view addSubview:_footerView];
+	[_launcherView setFrame:CGRectMake(0.0f, headerHeight, 320.0f, TTLAUNCHERVIEW_MAX_SIZE.height - footerHeight)];
+}
+
+#pragma mark -
+#pragma mark Public
+
+- (void)setHeaderView:(TTView *)headerView {
+	TT_RELEASE_SAFELY(_headerView);
+	_headerView = [headerView retain];
+	[self layoutSubviews];
+}
+
+- (TTView *)headerView {
+	return _headerView;
+}
+
+- (void)setFooterView:(TTView *)footerView {
+	TT_RELEASE_SAFELY(_footerView);
+	_footerView = [footerView retain];
+	[self layoutSubviews];
+}
+
+- (TTView *)footerView {
+	return _footerView;
 }
 
 @end
