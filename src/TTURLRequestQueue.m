@@ -108,7 +108,9 @@ static TTURLRequestQueue* gMainQueue = nil;
   TTDCONDITIONLOG(TTDFLAG_URLREQUEST, @"Connecting to %@", _URL);
   TTNetworkRequestStarted();
 
-  TTURLRequest* request = _requests.count == 1 ? [_requests objectAtIndex:0] : nil;
+  // Rodrigo: Probably this is a bug, since we have to consider that
+  // a loader can have more than one request.
+  TTURLRequest* request = _requests.count > 0 ? [_requests objectAtIndex:0] : nil;
   NSURLRequest *URLRequest = [_queue createNSURLRequest:request URL:URL];
 
   _connection = [[NSURLConnection alloc] initWithRequest:URLRequest delegate:self];
