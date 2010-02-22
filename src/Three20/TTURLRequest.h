@@ -19,7 +19,7 @@
 @protocol TTURLRequestDelegate, TTURLResponse;
 
 @interface TTURLRequest : NSObject {
-  NSString* _URL;
+  NSMutableString* _URL;
   NSString* _httpMethod;
   NSData* _httpBody;
   NSMutableDictionary* _parameters;
@@ -55,7 +55,7 @@
 /**
  * The URL to be loaded by the request.
  */
-@property(nonatomic,copy) NSString* URL;
+@property(nonatomic,copy) NSMutableString* URL;
 
 /**
  * The HTTP method to send with the request.
