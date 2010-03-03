@@ -52,7 +52,7 @@
  * A view controller used to display the contents of the search display controller.
  *
  * If you assign a view controller to this property, it will automatically create a search
- * display controller which you can access through this view controller's searchDisplaController
+ * display controller which you can access through this view controller's searchDisplayController
  * property.  You can then take the searchBar from that controller and add it to your views. The
  * search bar will then search the data source of the view controller that you assigned here.
  */
