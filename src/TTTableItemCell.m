@@ -1084,7 +1084,7 @@ static const CGFloat kDefaultMessageImageHeight = 34;
   
   item.text.width = tableView.width - padding;
   
-  return item.text.height + item.padding.top + item.padding.bottom;
+  return item.text.height + item.padding.top + item.padding.bottom + 40;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1111,7 +1111,9 @@ static const CGFloat kDefaultMessageImageHeight = 34;
   [super layoutSubviews];
   
   TTTableStyledTextItem* item = self.object;
-  _label.frame = CGRectOffset(self.contentView.bounds, item.margin.left, item.margin.top);
+  // Rodrigo: padding issue here. It was considering margin to determine the frame size,
+  // which in case of grouped cells, was visible outside cell borders
+  _label.frame = UIEdgeInsetsInsetRect(self.contentView.frame, item.padding);
 }
 
 - (void)didMoveToSuperview {
@@ -1129,7 +1131,10 @@ static const CGFloat kDefaultMessageImageHeight = 34;
     [super setObject:object];
     
     TTTableStyledTextItem* item = object;
-    _label.text = item.text;
+	// Rodrigo: we must set the font here, since TTStyledTextLabel.text 
+	// overrides the TTStyledText font 
+	_label.font = item.text.font;
+	_label.text = item.text;
     _label.contentInset = item.padding;
     [self setNeedsLayout];
   }  
