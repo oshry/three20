@@ -159,7 +159,6 @@
 	viewToLaunch.transform = [self transformForOrientation];
 
 	[self.superController.view addSubview:[_launcherNavigationController view]];
-	_launcherNavigationController.superController = self;
 	
 	viewToLaunch.frame = self.view.bounds;
 	viewToLaunch.alpha = 0;		
@@ -231,7 +230,6 @@
 
 #pragma mark -
 #pragma mark UINavigationControllerDelegate
-
 
 - (void)navigationController:(UINavigationController *)navigationController 
 							willShowViewController:(UIViewController *)viewController 

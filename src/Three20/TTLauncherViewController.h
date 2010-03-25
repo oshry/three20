@@ -17,6 +17,9 @@
 	UINavigationController *_launcherNavigationController;
 	UIViewController *_launcherNavigationControllerTopViewController;
 }
+- (void)dismissChild;
+- (void)dismissChildAnimated:(BOOL)animated;
+
 @property(nonatomic, retain) UINavigationController *launcherNavigationController;
 @property(nonatomic, readonly) TTLauncherView *launcherView;
 @property(nonatomic, retain) UIViewController *launcherNavigationControllerTopViewController;
