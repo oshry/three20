@@ -270,23 +270,23 @@
 #pragma mark -
 #pragma mark Public
 
-- (void)setHeaderView:(TTView *)headerView {
+- (void)setHeaderView:(UIView *)headerView {
 	TT_RELEASE_SAFELY(_headerView);
 	_headerView = [headerView retain];
 	[self layoutSubviews];
 }
 
-- (TTView *)headerView {
+- (UIView *)headerView {
 	return _headerView;
 }
 
-- (void)setFooterView:(TTView *)footerView {
+- (void)setFooterView:(UIView *)footerView {
 	TT_RELEASE_SAFELY(_footerView);
 	_footerView = [footerView retain];
 	[self layoutSubviews];
 }
 
-- (TTView *)footerView {
+- (UIView *)footerView {
 	return _footerView;
 }
 
