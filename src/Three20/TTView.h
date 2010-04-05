@@ -1,5 +1,5 @@
 //
-// Copyright 2009 Facebook
+// Copyright 2009-2010 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,14 +19,15 @@
 @class TTLayout;
 
 /**
- * A decorational view that can styled using a TTStyle object.
+ * A UIView with an attached style and layout that are used to render and
+ * layout the view, respectively. Style and layout are optional.
  */
 @interface TTView : UIView <TTStyleDelegate> {
-  TTStyle* _style;
+  TTStyle*  _style;
   TTLayout* _layout;
 }
 
-@property(nonatomic,retain) TTStyle* style;
+@property(nonatomic,retain) TTStyle*  style;
 @property(nonatomic,retain) TTLayout* layout;
 
 - (void)drawContent:(CGRect)rect;

@@ -1,5 +1,5 @@
 //
-// Copyright 2009 Facebook
+// Copyright 2009-2010 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ NSString* TTLocalizedString(NSString* key, NSString* comment);
  * Error codes handled:
  * - NSURLErrorTimedOut
  * - NSURLErrorNotConnectedToInternet
+ * - All other NSURLErrorDomain errors
  */
 NSString* TTDescriptionForError(NSError* error);
 
@@ -41,4 +42,3 @@ NSString* TTDescriptionForError(NSError* error);
  * Returns the given number formatted as XX,XXX,XXX.XX
  */
 NSString* TTFormatInteger(NSInteger num);
-

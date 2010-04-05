@@ -1,5 +1,5 @@
 //
-// Copyright 2009 Facebook
+// Copyright 2009-2010 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,11 +18,13 @@
 
 #import "Three20/TTDebug.h"
 
+#import <UIKit/UIKit.h>
 #import <pthread.h>
 
 static int              gNetworkTaskCount = 0;
 static pthread_mutex_t  gMutex = PTHREAD_MUTEX_INITIALIZER;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void TTNetworkRequestStarted() {
   pthread_mutex_lock(&gMutex);
 
@@ -34,6 +36,7 @@ void TTNetworkRequestStarted() {
   pthread_mutex_unlock(&gMutex);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 void TTNetworkRequestStopped() {
   pthread_mutex_lock(&gMutex);
 

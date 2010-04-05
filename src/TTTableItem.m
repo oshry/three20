@@ -1,5 +1,5 @@
 //
-// Copyright 2009 Facebook
+// Copyright 2009-2010 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -449,16 +449,18 @@
 
 @implementation TTTableMoreButton
 
-@synthesize isLoading = _isLoading;
+@synthesize isLoading = _isLoading, model = _model;
 
 - (id)init {
   if (self = [super init]) {
     _isLoading = NO;
+    _model = nil;
   }
   return self;
 }
 
 - (void)dealloc {
+  self.model = nil;
   [super dealloc];
 }
 

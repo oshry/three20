@@ -1,5 +1,5 @@
 //
-// Copyright 2009 Facebook
+// Copyright 2009-2010 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
+#import <UIKit/UIKit.h>
 
 #import "Three20/TTModel.h"
 
@@ -137,5 +139,5 @@
  * A datasource that is eternally loading.  Useful when you are in between data sources and
  * want to show the impression of loading until your actual data source is available.
  */
-@interface TTTableViewInterstialDataSource : TTTableViewDataSource <TTModel>
+@interface TTTableViewInterstitialDataSource : TTTableViewDataSource <TTModel>
 @end

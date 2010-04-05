@@ -1,5 +1,5 @@
 //
-// Copyright 2009 Facebook
+// Copyright 2009-2010 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 
 #import "Three20/TTViewController.h"
 #import "Three20/TTModel.h"
+#import "Three20/TTModelDelegate.h"
 
 /**
  * A view controller that manages a model in addition to a view.
  */
 @interface TTModelViewController : TTViewController <TTModelDelegate> {
   id<TTModel> _model;
-  NSError* _modelError;
+  NSError*    _modelError;
 
   struct {
     unsigned int isModelDidRefreshInvalid:1;
@@ -40,14 +41,11 @@
   } _flags;
 }
 
-/**
- *
- */
 @property(nonatomic,retain) id<TTModel> model;
 
 /**
  * An error that occurred while trying to load content.
- */ 
+ */
 @property(nonatomic, retain) NSError* modelError;
 
 /**
@@ -132,7 +130,7 @@
  */
 - (void)invalidateView;
 
-/** 
+/**
  * Immediately creates, loads, and displays the model (if it was not already).
  */
 - (void)updateView;
@@ -141,7 +139,7 @@
  * Called when the model is refreshed.
  *
  * Subclasses should override this function update parts of the view that may need to changed
- * when there is a new model, or something about the existing model changes. 
+ * when there is a new model, or something about the existing model changes.
  */
 - (void)didRefreshModel;
 
@@ -195,7 +193,7 @@
 - (void)showLoading:(BOOL)show;
 
 /**
- * Shows views to represent an empty model. 
+ * Shows views to represent an empty model.
  *
  * The default implementation of this method does nothing. Subclasses may override this method
  * to take an appropriate action.

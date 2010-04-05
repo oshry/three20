@@ -1,4 +1,4 @@
-// Copyright 2009 Facebook
+// Copyright 2009-2010 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
 // not use this file except in compliance with the License. You may obtain
@@ -32,14 +32,17 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)openURL {
-  [[TTNavigator navigator] openURL:self animated:YES];
+  [[TTNavigator navigator] openURLAction:[[TTURLAction actionWithURLPath: self]
+                                                           applyAnimated: YES]];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)openURLFromButton:(UIView*)button {
   NSDictionary* query = [NSDictionary dictionaryWithObjectsAndKeys:button, @"__target__", nil];
-  [[TTNavigator navigator] openURL:self query:query animated:YES];
+  [[TTNavigator navigator] openURLAction:[[[TTURLAction actionWithURLPath: self]
+                                                               applyQuery: query]
+                                                            applyAnimated: YES]];
 }
 
 

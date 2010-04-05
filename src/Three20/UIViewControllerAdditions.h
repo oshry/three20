@@ -1,5 +1,5 @@
 //
-// Copyright 2009 Facebook
+// Copyright 2009-2010 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -173,6 +173,13 @@
  * Shortcut for its animated-optional cousin.
  */
 - (void)dismissModalViewController;
+
+/**
+ * Whether or not this controller should ever be counted as the "top" view controller. That is
+ * used for the purposes of determining which controllers should have modal controllers presented
+ * within them. Defaults to YES; subclasses may override to NO if they so desire.
+ */
+- (BOOL)canBeTopViewController;
 
 /**
  * A temporary holding place for persisted view state waiting to be restored.

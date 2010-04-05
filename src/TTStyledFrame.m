@@ -1,5 +1,5 @@
 //
-// Copyright 2009 Facebook
+// Copyright 2009-2010 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -228,7 +228,7 @@
 
 - (id)initWithText:(NSString*)text element:(TTStyledElement*)element node:(TTStyledTextNode*)node {
   if (self = [super initWithElement:element]) {
-    _text = [text retain];
+    _text = [text copy];
     _node = node;
     _font = nil;
   }

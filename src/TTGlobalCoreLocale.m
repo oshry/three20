@@ -1,5 +1,5 @@
 //
-// Copyright 2009 Facebook
+// Copyright 2009-2010 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@
 
 #import "Three20/TTGlobalCore.h"
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 NSLocale* TTCurrentLocale() {
   NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
   NSArray* languages = [defaults objectForKey:@"AppleLanguages"];
@@ -29,6 +31,8 @@ NSLocale* TTCurrentLocale() {
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 NSString* TTLocalizedString(NSString* key, NSString* comment) {
   static NSBundle* bundle = nil;
   if (!bundle) {
@@ -36,13 +40,17 @@ NSString* TTLocalizedString(NSString* key, NSString* comment) {
           stringByAppendingPathComponent:@"Three20.bundle"];
     bundle = [[NSBundle bundleWithPath:path] retain];
   }
-  
+
   return [bundle localizedStringForKey:key value:key table:nil];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 NSString* TTDescriptionForError(NSError* error) {
   TTDINFO(@"ERROR %@", error);
+
   if ([error.domain isEqualToString:NSURLErrorDomain]) {
+    // Note: If new error codes are added here, be sure to document them in the header.
     if (error.code == NSURLErrorTimedOut) {
       return TTLocalizedString(@"Connection Timed Out", @"");
     } else if (error.code == NSURLErrorNotConnectedToInternet) {
@@ -54,6 +62,8 @@ NSString* TTDescriptionForError(NSError* error) {
   return TTLocalizedString(@"Error", @"");
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 NSString* TTFormatInteger(NSInteger num) {
   NSNumber* number = [NSNumber numberWithInt:num];
   NSNumberFormatter* formatter = [[NSNumberFormatter alloc] init];

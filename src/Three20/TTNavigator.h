@@ -1,5 +1,5 @@
 //
-// Copyright 2009 Facebook
+// Copyright 2009-2010 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+#import "Three20/TTCorePreprocessorMacros.h"
+#import "Three20/TTURLAction.h"
+
 @protocol TTNavigatorDelegate;
 @class TTURLMap;
 @class TTURLPattern;
@@ -31,27 +34,35 @@ typedef enum {
  * A URL-based navigation system with built-in persistence.
  */
 @interface TTNavigator : NSObject {
-  id<TTNavigatorDelegate> _delegate;
-  TTURLMap* _URLMap;
-  UIWindow* _window;
-  UIViewController* _rootViewController;
-  NSMutableArray* _delayedControllers;
-  TTNavigatorPersistenceMode _persistenceMode;
-  NSTimeInterval _persistenceExpirationAge;
-  BOOL _delayCount;
-  BOOL _supportsShakeToReload;
-  BOOL _opensExternalURLs;
+  id<TTNavigatorDelegate>     _delegate;
+
+  TTURLMap*                   _URLMap;
+
+  UIWindow*                   _window;
+
+  UIViewController*           _rootViewController;
+  NSMutableArray*             _delayedControllers;
+
+  TTNavigatorPersistenceMode  _persistenceMode;
+  NSTimeInterval              _persistenceExpirationAge;
+
+  BOOL                        _delayCount;
+
+  BOOL                        _supportsShakeToReload;
+  BOOL                        _opensExternalURLs;
 }
 
 @property(nonatomic,assign) id<TTNavigatorDelegate> delegate;
 
 /**
  * The URL map used to translate between URLs and view controllers.
+ *
+ * @see TTURLMap
  */
 @property(nonatomic,readonly) TTURLMap* URLMap;
 
 /**
- * The window that contains the views view controller hierarchy.
+ * The window that contains the view controller hierarchy.
  *
  * By default retrieves the keyWindow. If there is no keyWindow, creates a new
  * TTNavigatorWindow.
@@ -85,6 +96,8 @@ typedef enum {
 
 /**
  * How view controllers are automatically persisted on termination and restored on launch.
+ *
+ * @default TTNavigatorPersistenceModeNone
  */
 @property(nonatomic) TTNavigatorPersistenceMode persistenceMode;
 
@@ -95,30 +108,55 @@ typedef enum {
  * the user probably won't remember how they got there, and would prefer to start from the
  * beginning.
  *
- * Set this to 0 to restore from any age. The default value is 0.
+ * Set this to 0 to restore from any age.
+ *
+ * @default 0
  */
 @property(nonatomic) NSTimeInterval persistenceExpirationAge;
 
 /**
  * Causes the current view controller to be reloaded when shaking the phone.
+ *
+ * @default NO
  */
 @property(nonatomic) BOOL supportsShakeToReload;
 
 /**
  * Allows URLs to be opened externally if they don't match any patterns.
  *
- * The default value is NO.
+ * @default NO
  */
 @property(nonatomic) BOOL opensExternalURLs;
 
 /**
  * Indicates that we are asking controllers to delay heavy operations until a later time.
  *
- * The default value is NO.
+ * @default NO
  */
 @property(nonatomic,readonly) BOOL isDelayed;
 
+
 + (TTNavigator*)navigator;
+
+/**
+ * Load and display the view controller with a pattern that matches the URL.
+ *
+ * This method replaces all other openURL methods by using the chainable TTURLAction object.
+ *
+ * If there is not yet a rootViewController, the view controller loaded with this URL
+ * will be assigned as the rootViewController and inserted into the keyWindow. If there is not
+ * a keyWindow, a UIWindow will be created and displayed.
+ *
+ * Example TTURLAction initialization:
+ * [[TTURLAction actionWithURLPath:@"tt://some/path"]
+ *                   applyAnimated:YES]
+ *
+ * Each apply* method on the TTURLAction object returns self, allowing you to chain methods
+ * when initializing the object. This allows for a flexible method that requires a shifting set
+ * of parameters that have specific defaults. The old openURL* methods are being phased out, so
+ * please start using openURLAction instead.
+ */
+- (UIViewController*)openURLAction:(TTURLAction*)URLAction;
 
 /**
  * Loads and displays the view controller with a pattern that matches the URL.
@@ -130,8 +168,12 @@ typedef enum {
  * @param URL         The URL to open.
  * @param animated    Whether or not to animate the transition.
  * @return The view controller mapped to this URL.
+ * @deprecated
+ * @see openURLAction
+ * Remove by February 28, 2010
  */
-- (UIViewController*)openURL:(NSString*)URL animated:(BOOL)animated;
+- (UIViewController*)openURL: (NSString*)URL
+                    animated: (BOOL)animated __TTDEPRECATED_METHOD;
 
 /**
  * Loads and displays the view controller with a pattern that matches the URL using a specific
@@ -142,9 +184,13 @@ typedef enum {
  * @param animated    Whether or not to animate the transition.
  * @param transition  The view animation transition to use.
  * @return The view controller mapped to this URL.
+ * @deprecated
+ * @see openURLAction
+ * Remove by February 28, 2010
  */
-- (UIViewController*)openURL:(NSString*)URL animated:(BOOL)animated
-                     transition:(UIViewAnimationTransition)transition;
+- (UIViewController*)openURL: (NSString*)URL
+                    animated: (BOOL)animated
+                  transition: (UIViewAnimationTransition)transition __TTDEPRECATED_METHOD;
 
 /**
  * Loads and displays the view controller with a pattern that matches the URL and simultaneously
@@ -156,8 +202,13 @@ typedef enum {
  * @param parentURL   The parent URL (generally a tab bar controller page).
  * @param animated    Whether or not to animate the transition.
  * @return The view controller mapped to this URL.
+ * @deprecated
+ * @see openURLAction
+ * Remove by February 28, 2010
  */
-- (UIViewController*)openURL:(NSString*)URL parent:(NSString*)parentURL animated:(BOOL)animated;
+- (UIViewController*)openURL: (NSString*)URL
+                      parent: (NSString*)parentURL
+                    animated: (BOOL)animated __TTDEPRECATED_METHOD;
 
 /**
  * Loads and displays the view controller with a pattern that matches the URL and passes the
@@ -169,8 +220,13 @@ typedef enum {
  * @param query       A dictionary of query parameters.
  * @param animated    Whether or not to animate the transition.
  * @return The view controller mapped to this URL.
+ * @deprecated
+ * @see openURLAction
+ * Remove by February 28, 2010
  */
-- (UIViewController*)openURL:(NSString*)URL query:(NSDictionary*)query animated:(BOOL)animated;
+- (UIViewController*)openURL: (NSString*)URL
+                       query: (NSDictionary*)query
+                    animated: (BOOL)animated __TTDEPRECATED_METHOD;
 
 /**
  * Loads and displays the view controller with a pattern that matches the URL.
@@ -182,9 +238,14 @@ typedef enum {
  * @param query       A dictionary of query parameters.
  * @param animated    Whether or not to animate the transition.
  * @return The view controller mapped to this URL.
+ * @deprecated
+ * @see openURLAction
+ * Remove by February 28, 2010
  */
-- (UIViewController*)openURL:(NSString*)URL parent:(NSString*)parentURL query:(NSDictionary*)query
-                     animated:(BOOL)animated;
+- (UIViewController*)openURL: (NSString*)URL
+                      parent: (NSString*)parentURL
+                       query: (NSDictionary*)query
+                    animated: (BOOL)animated __TTDEPRECATED_METHOD;
 
 /**
  * Loads and displays the view controller with a pattern that matches the URL.
@@ -197,9 +258,15 @@ typedef enum {
  * @param animated    Whether or not to animate the transition.
  * @param transition  The view animation transition to use.
  * @return The view controller mapped to this URL.
+ * @deprecated
+ * @see openURLAction
+ * Remove by February 28, 2010
  */
-- (UIViewController*)openURL:(NSString*)URL parent:(NSString*)parentURL query:(NSDictionary*)query
-                     animated:(BOOL)animated transition:(UIViewAnimationTransition)transition;
+- (UIViewController*)openURL: (NSString*)URL
+                      parent: (NSString*)parentURL
+                       query: (NSDictionary*)query
+                    animated: (BOOL)animated
+                  transition: (UIViewAnimationTransition)transition __TTDEPRECATED_METHOD;
 
 /**
  * Loads and displays the view controller with a pattern that matches the URL.
@@ -213,12 +280,18 @@ typedef enum {
  * @param transition  The view animation transition to use.
  * @param withDelay   Whether or not to delay adding this controller.
  * @return The view controller mapped to this URL.
+ * @deprecated
+ * @see openURLAction
+ * Remove by February 28, 2010
  */
-- (UIViewController*)openURL:(NSString*)URL parent:(NSString*)parentURL query:(NSDictionary*)query
-                     animated:(BOOL)animated transition:(UIViewAnimationTransition)transition
-                     withDelay:(BOOL)withDelay;
+- (UIViewController*)openURL: (NSString*)URL
+                      parent: (NSString*)parentURL
+                       query: (NSDictionary*)query
+                    animated: (BOOL)animated
+                  transition: (UIViewAnimationTransition)transition
+                   withDelay: (BOOL)withDelay __TTDEPRECATED_METHOD;
 
-/** 
+/**
  * Opens a sequence of URLs.
  *
  * @return The view controller of the last opened URL.
@@ -266,12 +339,12 @@ typedef enum {
  */
 - (void)cancelDelay;
 
-/** 
+/**
  * Persists all view controllers to user defaults.
  */
 - (void)persistViewControllers;
 
-/** 
+/**
  * Restores all view controllers from user defaults and returns the last one.
  */
 - (UIViewController*)restoreViewControllers;
@@ -284,7 +357,7 @@ typedef enum {
  */
 - (void)persistController:(UIViewController*)controller path:(NSMutableArray*)path;
 
-/** 
+/**
  * Removes all view controllers from the window and releases them.
  */
 - (void)removeAllViewControllers;
@@ -299,7 +372,7 @@ typedef enum {
  */
 - (id)objectForPath:(NSString*)path;
 
-/** 
+/**
  * Erases all data stored in user defaults.
  */
 - (void)resetDefaults;
@@ -319,8 +392,18 @@ typedef enum {
 
 /**
  * Asks if the URL should be opened and allows the delegate to prevent it.
+ * See -navigator:URLToOpen: for a superset of functionality
  */
 - (BOOL)navigator:(TTNavigator*)navigator shouldOpenURL:(NSURL*)URL;
+
+/**
+ * Asks if the URL should be opened and allows the delegate to return a different URL to open
+ * instead. A return value of nil indicates the URL should not be opened.
+ *
+ * This is a superset of the functionality of -navigator:shouldOpenURL:. Returning YES from that
+ * method is equivalent to returning URL from this method.
+ */
+- (NSURL*)navigator:(TTNavigator*)navigator URLToOpen:(NSURL*)URL;
 
 /**
  * The URL is about to be opened in a controller.
@@ -333,7 +416,7 @@ typedef enum {
 @end
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// global 
+// global
 
 /**
  * Shortcut for calling [[TTNavigator navigator] openURL:]
