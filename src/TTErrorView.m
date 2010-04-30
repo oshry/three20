@@ -16,35 +16,40 @@
 
 #import "Three20/TTErrorView.h"
 
-#import "Three20/TTGlobalCore.h"
-#import "Three20/TTGlobalUI.h"
-#import "Three20/TTGlobalStyle.h"
+// UI
+#import "Three20/UIViewAdditions.h"
 
+// Style
+#import "Three20/TTGlobalStyle.h"
 #import "Three20/TTDefaultStyleSheet.h"
 
+// Core
+#import "Three20/TTCorePreprocessorMacros.h"
+
+static const CGFloat kVPadding1 = 30;
+static const CGFloat kVPadding2 = 20;
+static const CGFloat kHPadding  = 10;
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// global
-
-static CGFloat kVPadding1 = 30;
-static CGFloat kVPadding2 = 20;
-static CGFloat kHPadding = 10;
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
+///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation TTErrorView
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// NSObject
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithTitle:(NSString*)title subtitle:(NSString*)subtitle image:(UIImage*)image {
   if (self = [self init]) {
     self.title = title;
     self.subtitle = subtitle;
     self.image = image;
   }
+
   return self;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
   if (self = [super initWithFrame:frame]) {
     _imageView = [[UIImageView alloc] init];
@@ -57,7 +62,7 @@ static CGFloat kHPadding = 10;
     _titleView.font = TTSTYLEVAR(errorTitleFont);
     _titleView.textAlignment = UITextAlignmentCenter;
     [self addSubview:_titleView];
-    
+
     _subtitleView = [[UILabel alloc] init];
     _subtitleView.backgroundColor = [UIColor clearColor];
     _subtitleView.textColor = TTSTYLEVAR(tableErrorTextColor);
@@ -66,19 +71,28 @@ static CGFloat kHPadding = 10;
     _subtitleView.numberOfLines = 0;
     [self addSubview:_subtitleView];
   }
+
   return self;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   TT_RELEASE_SAFELY(_imageView);
   TT_RELEASE_SAFELY(_titleView);
   TT_RELEASE_SAFELY(_subtitleView);
+
   [super dealloc];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// UIView
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UIView
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutSubviews {
   _subtitleView.size = [_subtitleView sizeThatFits:CGSizeMake(self.width - kHPadding*2, 0)];
   [_titleView sizeToFit];
@@ -87,7 +101,7 @@ static CGFloat kHPadding = 10;
   CGFloat maxHeight = _imageView.height + _titleView.height + _subtitleView.height
                       + kVPadding1 + kVPadding2;
   BOOL canShowImage = _imageView.image && self.height > maxHeight;
-  
+
   CGFloat totalHeight = 0;
 
   if (canShowImage) {
@@ -99,9 +113,9 @@ static CGFloat kHPadding = 10;
   if (_subtitleView.text.length) {
     totalHeight += (totalHeight ? kVPadding2 : 0) + _subtitleView.height;
   }
-  
+
   CGFloat top = floor(self.height/2 - totalHeight/2);
-  
+
   if (canShowImage) {
     _imageView.origin = CGPointMake(floor(self.width/2 - _imageView.width/2), top);
     _imageView.hidden = NO;
@@ -118,30 +132,47 @@ static CGFloat kHPadding = 10;
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Properties
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)title {
   return _titleView.text;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setTitle:(NSString*)title {
   _titleView.text = title;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)subtitle {
   return _subtitleView.text;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setSubtitle:(NSString*)subtitle {
   _subtitleView.text = subtitle;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIImage*)image {
   return _imageView.image;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setImage:(UIImage*)image {
   _imageView.image = image;
 }
+
 
 @end

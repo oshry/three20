@@ -16,10 +16,13 @@
 
 #import "Three20/TTGlobalUI.h"
 
-#import "Three20/TTGlobalCoreLocale.h"
-
-#import "Three20/UIWindowAdditions.h"
+// UI
+#import "Three20/TTGlobalUI.h"
 #import "Three20/TTNavigator.h"
+
+// Core
+#import "Three20/TTGlobalCoreLocale.h"
+#import "Three20/UIWindowAdditions.h"
 
 const CGFloat ttkDefaultRowHeight = 44;
 
@@ -28,8 +31,6 @@ const CGFloat ttkDefaultLandscapeToolbarHeight  = 33;
 
 const CGFloat ttkDefaultPortraitKeyboardHeight  = 216;
 const CGFloat ttkDefaultLandscapeKeyboardHeight = 160;
-
-const CGFloat ttkRounded = -1;
 
 const CGFloat ttkGroupedTableCellInset = 10.0;
 
@@ -59,26 +60,6 @@ BOOL TTOSVersionIsAtLeast(float version) {
     return 2.0 >= version;
   #endif
   return NO;
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-CGRect TTRectContract(CGRect rect, CGFloat dx, CGFloat dy) {
-  return CGRectMake(rect.origin.x, rect.origin.y, rect.size.width - dx, rect.size.height - dy);
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-CGRect TTRectShift(CGRect rect, CGFloat dx, CGFloat dy) {
-  return CGRectOffset(TTRectContract(rect, dx, dy), dx, dy);
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-CGRect TTRectInset(CGRect rect, UIEdgeInsets insets) {
-  return CGRectMake(rect.origin.x + insets.left, rect.origin.y + insets.top,
-                    rect.size.width - (insets.left + insets.right),
-                    rect.size.height - (insets.top + insets.bottom));
 }
 
 

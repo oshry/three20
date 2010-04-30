@@ -16,6 +16,7 @@
 
 #import "Three20/TTGlobalNetwork.h"
 
+// Core
 #import "Three20/TTDebug.h"
 
 #import <UIKit/UIKit.h>
@@ -23,6 +24,7 @@
 
 static int              gNetworkTaskCount = 0;
 static pthread_mutex_t  gMutex = PTHREAD_MUTEX_INITIALIZER;
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void TTNetworkRequestStarted() {
@@ -36,11 +38,13 @@ void TTNetworkRequestStarted() {
   pthread_mutex_unlock(&gMutex);
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void TTNetworkRequestStopped() {
   pthread_mutex_lock(&gMutex);
 
   --gNetworkTaskCount;
+  // If this asserts, you don't have enough stop requests to match your start requests.
   TTDASSERT(gNetworkTaskCount >= 0);
   gNetworkTaskCount = MAX(0, gNetworkTaskCount);
 

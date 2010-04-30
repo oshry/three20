@@ -16,29 +16,41 @@
 
 #import "Three20/UINavigationControllerAdditions.h"
 
+// UI
 #import "Three20/TTGlobalUI.h"
-
 #import "Three20/TTNavigator.h"
+#import "Three20/UIViewControllerAdditions.h"
+
+// Network
 #import "Three20/TTURLMap.h"
 #import "Three20/TTURLRequestQueue.h"
 
 #import <QuartzCore/QuartzCore.h>
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * Additions.
  */
 @implementation UINavigationController (TTCategory)
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// private
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Private
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)pushAnimationDidStop {
   [TTURLRequestQueue mainQueue].suspended = NO;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIViewAnimationTransition)invertTransition:(UIViewAnimationTransition)transition {
   switch (transition) {
     case UIViewAnimationTransitionCurlUp:
@@ -54,6 +66,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIViewController*)popViewControllerAnimated2:(BOOL)animated {
   if (animated) {
     NSString* URL = self.topViewController.originalNavigatorURL;
@@ -68,9 +82,14 @@
   return [self popViewControllerAnimated2:animated];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// UIViewController
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UIViewController
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIView*)rotatingHeaderView {
   UIViewController* popup = [self popupViewController];
   if (popup) {
@@ -80,17 +99,26 @@
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// UIViewController (TTCategory)
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UIViewController (TTCategory)
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)canContainControllers {
   return YES;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIViewController*)topSubcontroller {
   return self.topViewController;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addSubcontroller:(UIViewController*)controller animated:(BOOL)animated
         transition:(UIViewAnimationTransition)transition {
   if (animated && transition) {
@@ -100,6 +128,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)bringControllerToFront:(UIViewController*)controller animated:(BOOL)animated {
   if ([self.viewControllers indexOfObject:controller] != NSNotFound
       && controller != self.topViewController) {
@@ -107,6 +137,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)keyForSubcontroller:(UIViewController*)controller {
   NSInteger index = [self.viewControllers indexOfObject:controller];
   if (index != NSNotFound) {
@@ -116,6 +148,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIViewController*)subcontrollerForKey:(NSString*)key {
   NSInteger index = key.intValue;
   if (index < self.viewControllers.count) {
@@ -125,42 +159,52 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)persistNavigationPath:(NSMutableArray*)path {
   for (UIViewController* controller in self.viewControllers) {
     [[TTNavigator navigator] persistController:controller path:path];
   }
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// public
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Public
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)pushViewController:(UIViewController*)controller
-	animatedWithTransition:(UIViewAnimationTransition)transition {
-	[TTURLRequestQueue mainQueue].suspended = YES;
+    animatedWithTransition:(UIViewAnimationTransition)transition {
+  [TTURLRequestQueue mainQueue].suspended = YES;
 
-	[self pushViewController:controller animated:NO];
-	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:TT_FLIP_TRANSITION_DURATION];
-	[UIView setAnimationDelegate:self];
-	[UIView setAnimationDidStopSelector:@selector(pushAnimationDidStop)];
-	[UIView setAnimationTransition:transition forView:self.view cache:YES];
-	[UIView commitAnimations];
+  [self pushViewController:controller animated:NO];
+
+  [UIView beginAnimations:nil context:nil];
+  [UIView setAnimationDuration:TT_FLIP_TRANSITION_DURATION];
+  [UIView setAnimationDelegate:self];
+  [UIView setAnimationDidStopSelector:@selector(pushAnimationDidStop)];
+  [UIView setAnimationTransition:transition forView:self.view cache:YES];
+  [UIView commitAnimations];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIViewController*)popViewControllerAnimatedWithTransition:(UIViewAnimationTransition)transition {
-	[TTURLRequestQueue mainQueue].suspended = YES;
+  [TTURLRequestQueue mainQueue].suspended = YES;
 
-	UIViewController* poppedController = [self popViewControllerAnimated:NO];
+  UIViewController* poppedController = [self popViewControllerAnimated:NO];
 
-	[UIView beginAnimations:nil context:NULL];
-	[UIView setAnimationDuration:TT_FLIP_TRANSITION_DURATION];
-	[UIView setAnimationDelegate:self];
-	[UIView setAnimationDidStopSelector:@selector(pushAnimationDidStop)];
-	[UIView setAnimationTransition:transition forView:self.view cache:NO];
-	[UIView commitAnimations];
+  [UIView beginAnimations:nil context:NULL];
+  [UIView setAnimationDuration:TT_FLIP_TRANSITION_DURATION];
+  [UIView setAnimationDelegate:self];
+  [UIView setAnimationDidStopSelector:@selector(pushAnimationDidStop)];
+  [UIView setAnimationTransition:transition forView:self.view cache:NO];
+  [UIView commitAnimations];
 
-	return poppedController;
+  return poppedController;
 }
-	
+
+
 @end

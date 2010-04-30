@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+// UI
 #import "Three20/TTTableViewVarHeightDelegate.h"
 
 @class TTTableHeaderDragRefreshView;
@@ -26,6 +27,6 @@
   BOOL                          _isDragging;
 }
 
-@property(nonatomic, retain) TTTableHeaderDragRefreshView* headerView;
+@property (nonatomic, retain) TTTableHeaderDragRefreshView* headerView;
 
 @end

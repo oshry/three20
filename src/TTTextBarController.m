@@ -16,85 +16,113 @@
 
 #import "Three20/TTTextBarController.h"
 
-#import "Three20/TTGlobalCore.h"
-#import "Three20/TTGlobalCoreLocale.h"
+// UI
 #import "Three20/TTGlobalUI.h"
 #import "Three20/TTGlobalUINavigator.h"
-
-#import "Three20/TTButton.h"
 #import "Three20/TTNavigator.h"
+#import "Three20/TTTextBarDelegate.h"
+#import "Three20/TTButton.h"
+#import "Three20/TTTextEditor.h"
+#import "Three20/UIViewAdditions.h"
+#import "Three20/UIViewControllerAdditions.h"
+
+// Style
+#import "Three20/TTGlobalStyle.h"
 #import "Three20/TTDefaultStyleSheet.h"
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// global
+// Core
+#import "Three20/TTGlobalCoreLocale.h"
+#import "Three20/TTCorePreprocessorMacros.h"
+#import "Three20/NSStringAdditions.h"
 
-static CGFloat kMargin = 1;
+static CGFloat kMargin  = 1;
 static CGFloat kPadding = 5;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation TTTextBarController
 
-@synthesize delegate = _delegate, textEditor = _textEditor, postButton = _postButton,
-            footerBar = _footerBar;
+@synthesize textEditor  = _textEditor;
+@synthesize postButton  = _postButton;
+@synthesize footerBar   = _footerBar;
+
+@synthesize delegate = _delegate;
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// private
-
-- (void)showActivity:(NSString*)activityText {
-}
-
-- (void)showAnimationDidStop {
-}
-
-- (void)dismissAnimationDidStop {
-  [self release];
-}
-
-- (void)dismissWithCancel {
-  if ([_delegate respondsToSelector:@selector(textBarDidCancel:)]) {
-    [_delegate textBarDidCancel:self];
-  }
-  
-  [self dismissPopupViewControllerAnimated:YES];
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// NSObject
-
 - (id)initWithNavigatorURL:(NSURL*)URL query:(NSDictionary*)query {
   if (self = [super init]) {
-    _delegate = nil;
-    _result = nil;
-    _defaultText = nil;
-    _textEditor = nil;
-    _postButton = nil;
-    _footerBar = nil;
-    _previousRightBarButtonItem = nil;
-
-    if (query) {
+    if (nil != query) {
       _delegate = [query objectForKey:@"delegate"];
       _defaultText = [[query objectForKey:@"text"] copy];
     }
   }
+
   return self;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
-  return [self initWithNavigatorURL:nil query:nil];
+  if (self = [self initWithNavigatorURL:nil query:nil]) {
+  }
+
+  return self;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   TT_RELEASE_SAFELY(_result);
   TT_RELEASE_SAFELY(_defaultText);
   TT_RELEASE_SAFELY(_footerBar);
   TT_RELEASE_SAFELY(_previousRightBarButtonItem);
+
   [super dealloc];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// UIViewController
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Private
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)showActivity:(NSString*)activityText {
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)showAnimationDidStop {
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)dismissAnimationDidStop {
+  [self release];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)dismissWithCancel {
+  if ([_delegate respondsToSelector:@selector(textBarDidCancel:)]) {
+    [_delegate textBarDidCancel:self];
+  }
+
+  [self dismissPopupViewControllerAnimated:YES];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UIViewController
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)loadView {
   CGSize screenSize = TTScreenBounds().size;
 
@@ -103,9 +131,9 @@ static CGFloat kPadding = 5;
   _textBar.style = TTSTYLE(textBar);
   [self.view addSubview:_textBar];
 
-  [_textBar addSubview:self.textEditor];  
+  [_textBar addSubview:self.textEditor];
   [_textBar addSubview:self.postButton];
-  
+
   [self.postButton sizeToFit];
   _postButton.frame = CGRectMake(screenSize.width - (_postButton.width + kPadding),
                                  kMargin+kPadding, _postButton.width, 0);
@@ -114,7 +142,7 @@ static CGFloat kPadding = 5;
                                  screenSize.width - (_postButton.width+kPadding*2), 0);
   [_textEditor sizeToFit];
   _postButton.height = _textEditor.size.height - 8;
-  
+
   _textBar.frame = CGRectMake(0, 0,
                               screenSize.width, _textEditor.height+kMargin*2);
 
@@ -127,7 +155,7 @@ static CGFloat kPadding = 5;
     self.view.top -= _footerBar.height;
     self.view.height += _footerBar.height;
   }
-  
+
   self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth
                               | UIViewAutoresizingFlexibleTopMargin;
   _postButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin
@@ -137,6 +165,8 @@ static CGFloat kPadding = 5;
   _footerBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)viewDidUnload {
   [super viewDidUnload];
   TT_RELEASE_SAFELY(_textBar);
@@ -145,9 +175,14 @@ static CGFloat kPadding = 5;
   TT_RELEASE_SAFELY(_previousRightBarButtonItem);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-// UIViewController (TTCategory)
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UIViewController (TTCategory)
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)persistView:(NSMutableDictionary*)state {
   [state setObject:[NSNumber numberWithBool:YES] forKey:@"__important__"];
 
@@ -156,16 +191,18 @@ static CGFloat kPadding = 5;
     [state setObject:delegate forKey:@"delegate"];
   }
   [state setObject:_textEditor.text forKey:@"text"];
-  
+
   NSString* title = self.navigationItem.title;
-  
+
   if (title) {
     [state setObject:title forKey:@"title"];
   }
-  
+
   return [super persistView:state];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)restoreView:(NSDictionary*)state {
   [super restoreView:state];
   NSString* delegate = [state objectForKey:@"delegate"];
@@ -179,13 +216,18 @@ static CGFloat kPadding = 5;
   _defaultText = [[state objectForKey:@"text"] retain];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// TTPopupViewController
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark TTPopupViewController
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)showInView:(UIView*)view animated:(BOOL)animated {
   self.view.transform = TTRotateTransformForOrientation(TTInterfaceOrientation());
   [view addSubview:self.view];
-  
+
   if (_defaultText) {
     _textEditor.text = _defaultText;
     TT_RELEASE_SAFELY(_defaultText);
@@ -198,6 +240,8 @@ static CGFloat kPadding = 5;
   [_textEditor becomeFirstResponder];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dismissPopupViewControllerAnimated:(BOOL)animated {
   if (animated) {
     [_textEditor resignFirstResponder];
@@ -210,14 +254,19 @@ static CGFloat kPadding = 5;
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// TTTextEditorDelegate
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark TTTextEditorDelegate
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)textEditorDidBeginEditing:(TTTextEditor*)textEditor {
   [self retain];
-  
+
   _originTop = self.view.top;
-  
+
   UIViewController* controller = self.view.viewController;
   _previousRightBarButtonItem = [controller.navigationItem.rightBarButtonItem retain];
   [controller.navigationItem setRightBarButtonItem:
@@ -228,10 +277,10 @@ static CGFloat kPadding = 5;
   [UIView setAnimationDuration:TT_TRANSITION_DURATION];
   [UIView setAnimationDelegate:self];
   [UIView setAnimationDidStopSelector:@selector(showAnimationDidStop)];
-  
+
   CGRect rect = [self.view.superview frameWithKeyboardSubtracted:0];
   self.view.top = rect.size.height - self.view.height;
-  
+
   [UIView commitAnimations];
 
   if ([_delegate respondsToSelector:@selector(textBarDidBeginEditing:)]) {
@@ -239,6 +288,8 @@ static CGFloat kPadding = 5;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)textEditorDidEndEditing:(TTTextEditor*)textEditor {
   UIViewController* controller = self.view.viewController;
   [controller.navigationItem setRightBarButtonItem:_previousRightBarButtonItem animated:YES];
@@ -248,9 +299,9 @@ static CGFloat kPadding = 5;
   [UIView setAnimationDuration:TT_TRANSITION_DURATION];
   [UIView setAnimationDelegate:self];
   [UIView setAnimationDidStopSelector:@selector(dismissAnimationDidStop)];
-  
+
   self.view.top = _originTop;
-  
+
   [UIView commitAnimations];
 
   if ([_delegate respondsToSelector:@selector(textBarDidEndEditing:)]) {
@@ -258,33 +309,47 @@ static CGFloat kPadding = 5;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)textEditorDidChange:(TTTextEditor*)textEditor {
   [_postButton setEnabled:textEditor.text.length > 0];
 }
 
-- (BOOL)textEditor:(TTTextEditor*)textEditor shouldResizeBy:(CGFloat)height {    
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (BOOL)textEditor:(TTTextEditor*)textEditor shouldResizeBy:(CGFloat)height {
   CGRect frame = self.view.frame;
   frame.origin.y -= height;
   frame.size.height += height;
   _textBar.height += height;
   _footerBar.top += height;
   self.view.frame = frame;
-  
+
   return YES;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// UIAlertViewDelegate
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UIAlertViewDelegate
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
   if (buttonIndex == 0) {
     [self dismissWithCancel];
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// public
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Public
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTTextEditor*)textEditor {
   if (!_textEditor) {
     _textEditor = [[TTTextEditor alloc] init];
@@ -298,6 +363,8 @@ static CGFloat kPadding = 5;
   return _textEditor;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTButton*)postButton {
   if (!_postButton) {
     _postButton = [[TTButton buttonWithStyle:@"textBarPostButton:"
@@ -308,6 +375,8 @@ static CGFloat kPadding = 5;
   return _postButton;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)post {
   BOOL shouldDismiss = [self willPostText:_textEditor.text];
   if ([_delegate respondsToSelector:@selector(textBar:willPostText:)]) {
@@ -316,7 +385,7 @@ static CGFloat kPadding = 5;
 
   _textEditor.text = @"";
   _postButton.enabled = NO;
-  
+
   if (shouldDismiss) {
     [self dismissWithResult:nil animated:YES];
   } else {
@@ -324,6 +393,8 @@ static CGFloat kPadding = 5;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)cancel {
   if (!_textEditor.text.isEmptyOrWhitespace
       && !(_defaultText && [_defaultText isEqualToString:_textEditor.text])) {
@@ -338,12 +409,14 @@ static CGFloat kPadding = 5;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dismissWithResult:(id)result animated:(BOOL)animated {
   [_result release];
   _result = [result retain];
 
   [self dismissPopupViewControllerAnimated:YES];
-  
+
 //  if (animated) {
 //    if ([_delegate respondsToSelector:@selector(textBar:willAnimateTowards:)]) {
 //      CGRect rect = [_delegate textBar:self willAnimateTowards:_originRect];
@@ -360,13 +433,13 @@ static CGFloat kPadding = 5;
 //    _originView.hidden = NO;
 //    _activityView.hidden = YES;
 //    _textEditor.hidden = YES;
-//    
+//
 //    [UIView beginAnimations:nil context:nil];
 //    [UIView setAnimationDuration:TT_TRANSITION_DURATION];
 //    [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
 //    [UIView setAnimationDelegate:self];
 //    [UIView setAnimationDidStopSelector:@selector(dismissAnimationDidStop)];
-//    
+//
 //    if (!CGRectIsEmpty(originRect)) {
 //      _screenView.frame = CGRectOffset(originRect, 0, -TTStatusHeight());
 //    } else {
@@ -375,18 +448,20 @@ static CGFloat kPadding = 5;
 //
 //    _innerView.alpha = 0;
 //    _navigationBar.alpha = 0;
-//    
+//
 //    [UIView commitAnimations];
 //  } else {
 //    [self dismissAnimationDidStop];
 //  }
-//  
+//
 //  [self hideKeyboard];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)failWithError:(NSError*)error {
   [self showActivity:nil];
-  
+
   NSString* title = [self titleForError:error];
   if (title.length) {
     UIAlertView* alertView = [[[UIAlertView alloc] initWithTitle:TTLocalizedString(@"Error", @"")
@@ -396,16 +471,23 @@ static CGFloat kPadding = 5;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)willPostText:(NSString*)text {
   return YES;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)titleForActivity {
   return nil;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)titleForError:(NSError*)error {
   return nil;
 }
+
 
 @end

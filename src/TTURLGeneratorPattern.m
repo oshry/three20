@@ -16,6 +16,7 @@
 
 #import "Three20/TTURLGeneratorPattern.h"
 
+// UI (private)
 #import "Three20/TTURLWildcard.h"
 
 
@@ -44,7 +45,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
-  return [self initWithTargetClass:nil];
+  if (self = [self initWithTargetClass:nil]) {
+  }
+
+  return self;
 }
 
 
@@ -61,18 +65,12 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (Class)classForInvocation {
   return _targetClass;
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (void)compile {
   [self compileURL];
 
@@ -93,9 +91,6 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (NSString*)generateURLFromObject:(id)object {
   NSMutableArray* paths = [NSMutableArray array];
   NSMutableArray* queries = nil;

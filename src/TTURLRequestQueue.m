@@ -16,25 +16,25 @@
 
 #import "Three20/TTURLRequestQueue.h"
 
-#import "Three20/TTGlobalCore.h"
-#import "Three20/TTGlobalCorePaths.h"
-#import "Three20/TTDebugFlags.h"
-
+// Network
 #import "Three20/TTURLRequest.h"
 #import "Three20/TTURLRequestDelegate.h"
 #import "Three20/TTUserInfo.h"
 #import "Three20/TTURLResponse.h"
 #import "Three20/TTURLCache.h"
 
+// Network (Private)
 #import "Three20/TTRequestLoader.h"
+
+// Core
+#import "Three20/TTGlobalCorePaths.h"
+#import "Three20/TTDebugFlags.h"
+#import "Three20/TTDebug.h"
 
 static const NSTimeInterval kFlushDelay = 0.3;
 static const NSTimeInterval kTimeout = 300.0;
 static const NSInteger kMaxConcurrentLoads = 5;
 static NSUInteger kDefaultMaxContentLength = 150000;
-
-static NSString* kSafariUserAgent = @"Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_2 like Mac OS X;\
- en-us) AppleWebKit/525.181 (KHTML, like Gecko) Version/3.1.1 Mobile/5H11 Safari/525.20";
 
 static TTURLRequestQueue* gMainQueue = nil;
 
@@ -73,12 +73,8 @@ static TTURLRequestQueue* gMainQueue = nil;
   if (self == [super init]) {
     _loaders = [[NSMutableDictionary alloc] init];
     _loaderQueue = [[NSMutableArray alloc] init];
-    _loaderQueueTimer = nil;
-    _totalLoading = 0;
     _maxContentLength = kDefaultMaxContentLength;
     _imageCompressionQuality = 0.75;
-    _userAgent = [kSafariUserAgent copy];
-    _suspended = NO;
   }
   return self;
 }
@@ -123,20 +119,30 @@ static TTURLRequestQueue* gMainQueue = nil;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (BOOL)loadFromCache:(NSString*)URL cacheKey:(NSString*)cacheKey
-    expires:(NSTimeInterval)expirationAge fromDisk:(BOOL)fromDisk data:(id*)data
-    error:(NSError**)error timestamp:(NSDate**)timestamp {
+- (BOOL)loadFromCache: (NSString*)URL
+             cacheKey: (NSString*)cacheKey
+              expires: (NSTimeInterval)expirationAge
+             fromDisk: (BOOL)fromDisk
+                 data: (id*)data
+                error: (NSError**)error
+            timestamp: (NSDate**)timestamp {
+  TTDASSERT(nil != data);
+
   UIImage* image = [[TTURLCache sharedCache] imageForURL:URL fromDisk:fromDisk];
-  if (image) {
+
+  if (nil != image) {
     *data = image;
     return YES;
+
   } else if (fromDisk) {
     if (TTIsBundleURL(URL)) {
       *data = [self loadFromBundle:URL error:error];
       return YES;
+
     } else if (TTIsDocumentsURL(URL)) {
       *data = [self loadFromDocuments:URL error:error];
       return YES;
+
     } else {
       *data = [[TTURLCache sharedCache] dataForKey:cacheKey expires:expirationAge
                                         timestamp:timestamp];
@@ -153,7 +159,7 @@ static TTURLRequestQueue* gMainQueue = nil;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)loadRequestFromCache:(TTURLRequest*)request {
   if (!request.cacheKey) {
-    request.cacheKey = [[TTURLCache sharedCache] keyForURL:request.URL];
+    request.cacheKey = [[TTURLCache sharedCache] keyForURL:request.urlPath];
   }
 
   if (request.cachePolicy & (TTURLRequestCachePolicyDisk|TTURLRequestCachePolicyMemory)) {
@@ -161,9 +167,9 @@ static TTURLRequestQueue* gMainQueue = nil;
     NSDate* timestamp = nil;
     NSError* error = nil;
 
-    if ([self loadFromCache:request.URL cacheKey:request.cacheKey
+    if ([self loadFromCache:request.urlPath cacheKey:request.cacheKey
               expires:request.cacheExpirationAge
-              fromDisk:!_suspended && request.cachePolicy & TTURLRequestCachePolicyDisk
+              fromDisk:!_suspended && (request.cachePolicy & TTURLRequestCachePolicyDisk)
               data:&data error:&error timestamp:&timestamp]) {
       request.isLoading = NO;
 
@@ -203,7 +209,7 @@ static TTURLRequestQueue* gMainQueue = nil;
   NSError* error = nil;
 
   if ((loader.cachePolicy & (TTURLRequestCachePolicyDisk|TTURLRequestCachePolicyMemory))
-      && [self loadFromCache:loader.URL cacheKey:loader.cacheKey
+      && [self loadFromCache:loader.urlPath cacheKey:loader.cacheKey
                expires:loader.cacheExpirationAge
                fromDisk:loader.cachePolicy & TTURLRequestCachePolicyDisk
                data:&data error:&error timestamp:&timestamp]) {
@@ -219,7 +225,7 @@ static TTURLRequestQueue* gMainQueue = nil;
     }
   } else {
     ++_totalLoading;
-    [loader load:[NSURL URLWithString:loader.URL]];
+    [loader load:[NSURL URLWithString:loader.urlPath]];
   }
 }
 
@@ -333,7 +339,7 @@ static TTURLRequestQueue* gMainQueue = nil;
     }
   }
 
-  if (!request.URL.length) {
+  if (!request.urlPath.length) {
     NSError* error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorBadURL userInfo:nil];
     for (id<TTURLRequestDelegate> delegate in request.delegates) {
       if ([delegate respondsToSelector:@selector(request:didFailLoadWithError:)]) {
@@ -365,7 +371,7 @@ static TTURLRequestQueue* gMainQueue = nil;
     [_loaderQueue addObject:loader];
   } else {
     ++_totalLoading;
-    [loader load:[NSURL URLWithString:request.URL]];
+    [loader load:[NSURL URLWithString:request.urlPath]];
   }
   [loader release];
 
@@ -385,7 +391,7 @@ static TTURLRequestQueue* gMainQueue = nil;
     }
   }
 
-  if (!request.URL.length) {
+  if (!request.urlPath.length) {
     NSError* error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorBadURL userInfo:nil];
     for (id<TTURLRequestDelegate> delegate in request.delegates) {
       if ([delegate respondsToSelector:@selector(request:didFailLoadWithError:)]) {
@@ -403,7 +409,7 @@ static TTURLRequestQueue* gMainQueue = nil;
   // Should be decremented eventually by loadSynchronously
   ++_totalLoading;
 
-  [loader loadSynchronously:[NSURL URLWithString:request.URL]];
+  [loader loadSynchronously:[NSURL URLWithString:request.urlPath]];
   TT_RELEASE_SAFELY(loader);
 
   return NO;
@@ -470,13 +476,16 @@ static TTURLRequestQueue* gMainQueue = nil;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSURLRequest*)createNSURLRequest:(TTURLRequest*)request URL:(NSURL*)URL {
   if (!URL) {
-    URL = [NSURL URLWithString:request.URL];
+    URL = [NSURL URLWithString:request.urlPath];
   }
 
   NSMutableURLRequest* URLRequest = [NSMutableURLRequest requestWithURL:URL
                                     cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
                                     timeoutInterval:kTimeout];
-  [URLRequest setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
+
+  if (self.userAgent) {
+      [URLRequest setValue:self.userAgent forHTTPHeaderField:@"User-Agent"];
+  }
 
   if (request) {
     [URLRequest setHTTPShouldHandleCookies:request.shouldHandleCookies];

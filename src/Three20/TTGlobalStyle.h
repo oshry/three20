@@ -17,6 +17,51 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+/**
+ * @return a rectangle with dx and dy subtracted from the width and height, respectively.
+ *
+ * Example result: CGRectMake(x, y, w - dx, h - dy)
+ */
+CGRect TTRectContract(CGRect rect, CGFloat dx, CGFloat dy);
+
+/**
+ * @return a rectangle whose origin has been offset by dx, dy, and whose size has been
+ * contracted by dx, dy.
+ *
+ * Example result: CGRectMake(x + dx, y + dy, w - dx, h - dy)
+ */
+CGRect TTRectShift(CGRect rect, CGFloat dx, CGFloat dy);
+
+/**
+ * @return a rectangle with the given insets.
+ *
+ * Example result: CGRectMake(x + left, y + top, w - (left + right), h - (top + bottom))
+ */
+CGRect TTRectInset(CGRect rect, UIEdgeInsets insets);
+
+/**
+ * A constant denoting that a corner should be rounded.
+ * @const -1
+ */
+extern const CGFloat ttkRounded;
+
+/**
+ * Deprecated macros for common constants.
+ */
+#define TT_ROUNDED                    ttkRounded
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Color helpers
+
+#define RGBCOLOR(r,g,b) [UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 alpha:1]
+#define RGBACOLOR(r,g,b,a) [UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 \
+alpha:(a)]
+
+#define HSVCOLOR(h,s,v) [UIColor colorWithHue:(h) saturation:(s) value:(v) alpha:1]
+#define HSVACOLOR(h,s,v,a) [UIColor colorWithHue:(h) saturation:(s) value:(v) alpha:(a)]
+
+#define RGBA(r,g,b,a) (r)/255.0, (g)/255.0, (b)/255.0, (a)
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Style helpers
 
@@ -28,10 +73,3 @@
 #define TTSTYLESHEET ((id)[TTStyleSheet globalStyleSheet])
 
 #define TTSTYLEVAR(_VARNAME) [TTSTYLESHEET _VARNAME]
-
-typedef enum {
-  TTPositionStatic,
-  TTPositionAbsolute,
-  TTPositionFloatLeft,
-  TTPositionFloatRight,
-} TTPosition;

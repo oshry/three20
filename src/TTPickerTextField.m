@@ -16,38 +16,45 @@
 
 #import "Three20/TTPickerTextField.h"
 
-#import "Three20/TTGlobalCore.h"
-#import "Three20/TTGlobalUI.h"
+// UI
 #import "Three20/TTGlobalUINavigator.h"
-
+#import "Three20/TTPickerTextFieldDelegate.h"
 #import "Three20/TTTableViewDataSource.h"
 #import "Three20/TTPickerViewCell.h"
+#import "Three20/UIViewAdditions.h"
+#import "Three20/UIFontAdditions.h"
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+// Core
+#import "Three20/TTCorePreprocessorMacros.h"
 
 static NSString* kEmpty = @" ";
 static NSString* kSelected = @"`";
 
-static CGFloat kCellPaddingY = 3;
-static CGFloat kPaddingX = 8;
-static CGFloat kSpacingY = 6;
-static CGFloat kPaddingRatio = 1.75;
-static CGFloat kClearButtonSize = 38;
-static CGFloat kMinCursorWidth = 50;
+static const CGFloat kCellPaddingY    = 3;
+static const CGFloat kPaddingX        = 8;
+static const CGFloat kSpacingY        = 6;
+static const CGFloat kPaddingRatio    = 1.75;
+static const CGFloat kClearButtonSize = 38;
+static const CGFloat kMinCursorWidth  = 50;
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation TTPickerTextField
 
-@synthesize cellViews = _cellViews, selectedCell = _selectedCell, lineCount = _lineCount;
+@synthesize cellViews     = _cellViews;
+@synthesize selectedCell  = _selectedCell;
+@synthesize lineCount     = _lineCount;
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
   if (self = [super initWithFrame:frame]) {
     _cellViews = [[NSMutableArray alloc] init];
-    _selectedCell = nil;
     _lineCount = 1;
     _cursorOrigin = CGPointZero;
-    
+
     self.text = kEmpty;
     self.contentVerticalAlignment = UIControlContentVerticalAlignmentTop;
     self.clearButtonMode = UITextFieldViewModeNever;
@@ -57,16 +64,20 @@ static CGFloat kMinCursorWidth = 50;
     [self addTarget:self action:@selector(textFieldDidEndEditing)
       forControlEvents:UIControlEventEditingDidEnd];
   }
+
   return self;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   TT_RELEASE_SAFELY(_cellViews);
+
   [super dealloc];
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGFloat)layoutCells {
   CGFloat fontHeight = self.font.ttLineHeight;
   CGFloat lineIncrement = fontHeight + kCellPaddingY*2 + kSpacingY;
@@ -103,17 +114,19 @@ static CGFloat kMinCursorWidth = 50;
         ++_lineCount;
     }
   }
-  
+
   return _cursorOrigin.y + fontHeight + marginY;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)updateHeight {
   CGFloat previousHeight = self.height;
   CGFloat newHeight = [self layoutCells];
   if (previousHeight && newHeight != previousHeight) {
     self.height = newHeight;
     [self setNeedsDisplay];
-    
+
     SEL sel = @selector(textFieldDidResize:);
     if ([self.delegate respondsToSelector:sel]) {
       [self.delegate performSelector:sel withObject:self];
@@ -123,10 +136,14 @@ static CGFloat kMinCursorWidth = 50;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGFloat)marginY {
   return floor(self.font.ttLineHeight/kPaddingRatio);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGFloat)topOfLine:(int)lineNumber {
   if (lineNumber == 0) {
     return 0;
@@ -139,12 +156,16 @@ static CGFloat kMinCursorWidth = 50;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGFloat)centerOfLine:(int)lineNumber {
   CGFloat lineTop = [self topOfLine:lineNumber];
   CGFloat ttLineHeight = self.font.ttLineHeight + kCellPaddingY*2 + kSpacingY;
   return lineTop + floor(ttLineHeight/2);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGFloat)heightWithLines:(int)lines {
   CGFloat ttLineHeight = self.font.ttLineHeight;
   CGFloat lineSpacing = kCellPaddingY*2 + kSpacingY;
@@ -152,10 +173,14 @@ static CGFloat kMinCursorWidth = 50;
   return marginY + ttLineHeight*lines + lineSpacing*(lines ? lines-1 : 0) + marginY;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)selectLastCell {
   self.selectedCell = [_cellViews objectAtIndex:_cellViews.count-1];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)labelForObject:(id)object {
   NSString* label = nil;
   if ([_dataSource respondsToSelector:@selector(tableView:labelForObject:)]) {
@@ -164,9 +189,14 @@ static CGFloat kMinCursorWidth = 50;
   return label ? label : [NSString stringWithFormat:@"%@", object];
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-// UIView
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UIView
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutSubviews {
   if (_dataSource) {
     [self layoutCells];
@@ -181,12 +211,16 @@ static CGFloat kMinCursorWidth = 50;
   [super layoutSubviews];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGSize)sizeThatFits:(CGSize)size {
   [self layoutIfNeeded];
   CGFloat height = [self heightWithLines:_lineCount];
   return CGSizeMake(size.width, height);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
   [super touchesBegan:touches withEvent:event];
 
@@ -203,9 +237,14 @@ static CGFloat kMinCursorWidth = 50;
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// UITextField
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UITextField
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setText:(NSString*)text {
   if (_dataSource) {
     [self updateHeight];
@@ -213,6 +252,8 @@ static CGFloat kMinCursorWidth = 50;
   [super setText:text];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGRect)textRectForBounds:(CGRect)bounds {
   if (_dataSource && [self.text isEqualToString:kSelected]) {
     // Hide the cursor while a cell is selected
@@ -224,14 +265,20 @@ static CGFloat kMinCursorWidth = 50;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGRect)editingRectForBounds:(CGRect)bounds {
   return [self textRectForBounds:bounds];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGRect)placeholderRectForBounds:(CGRect)bounds {
   return [self textRectForBounds:bounds];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGRect)leftViewRectForBounds:(CGRect)bounds {
   if (self.leftView) {
     return CGRectMake(
@@ -242,6 +289,8 @@ static CGFloat kMinCursorWidth = 50;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGRect)rightViewRectForBounds:(CGRect)bounds {
   if (self.rightView) {
     return CGRectMake(bounds.size.width - kClearButtonSize, bounds.size.height - kClearButtonSize,
@@ -251,14 +300,21 @@ static CGFloat kMinCursorWidth = 50;
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// TTSearchTextField
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark TTSearchTextField
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)hasText {
   return self.text.length && ![self.text isEqualToString:kEmpty]
          && ![self.text isEqualToString:kSelected];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)showSearchResults:(BOOL)show {
   [super showSearchResults:show];
   if (show) {
@@ -268,6 +324,8 @@ static CGFloat kMinCursorWidth = 50;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGRect)rectForSearchResults:(BOOL)withKeyboard {
   UIView* superview = self.superviewForSearchResults;
   CGFloat y = superview.ttScreenY;
@@ -278,6 +336,8 @@ static CGFloat kMinCursorWidth = 50;
   return CGRectMake(0, self.bottom-1, superview.frame.size.width, tableHeight+1);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)shouldUpdate:(BOOL)emptyText {
   if (emptyText && !self.hasText && !self.selectedCell && self.cells.count) {
     [self selectLastCell];
@@ -295,9 +355,14 @@ static CGFloat kMinCursorWidth = 50;
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// UITableViewDelegate
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UITableViewDelegate
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath {
   [_tableView deselectRowAtIndexPath:indexPath animated:NO];
 
@@ -305,17 +370,23 @@ static CGFloat kMinCursorWidth = 50;
   [self addCellWithObject:object];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// UIControlEvents
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UIControlEvents
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)textFieldDidEndEditing {
   if (_selectedCell) {
     self.selectedCell = nil;
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSArray*)cells {
   NSMutableArray* cells = [NSMutableArray array];
   for (TTPickerViewCell* cellView in _cellViews) {
@@ -324,16 +395,18 @@ static CGFloat kMinCursorWidth = 50;
   return cells;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addCellWithObject:(id)object {
   TTPickerViewCell* cell = [[[TTPickerViewCell alloc] init] autorelease];
 
   NSString* label = [self labelForObject:object];
-  
+
   cell.object = object;
   cell.label = label;
   cell.font = self.font;
   [_cellViews addObject:cell];
-  [self addSubview:cell];  
+  [self addSubview:cell];
 
   // Reset text so the cursor moves to be at the end of the cellViews
   self.text = kEmpty;
@@ -344,6 +417,8 @@ static CGFloat kMinCursorWidth = 50;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)removeCellWithObject:(id)object {
   for (int i = 0; i < _cellViews.count; ++i) {
     TTPickerViewCell* cell = [_cellViews objectAtIndex:i];
@@ -363,31 +438,38 @@ static CGFloat kMinCursorWidth = 50;
   self.text = self.text;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)removeAllCells {
   while (_cellViews.count) {
     TTPickerViewCell* cell = [_cellViews objectAtIndex:0];
     [cell removeFromSuperview];
     [_cellViews removeObjectAtIndex:0];
   }
-  
+
   _selectedCell = nil;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setSelectedCell:(TTPickerViewCell*)cell {
   if (_selectedCell) {
     _selectedCell.selected = NO;
   }
-  
+
   _selectedCell = cell;
 
   if (_selectedCell) {
     _selectedCell.selected = YES;
     self.text = kSelected;
+
   } else if (self.cells.count) {
     self.text = kEmpty;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)removeSelectedCell {
   if (_selectedCell) {
     [self removeCellWithObject:_selectedCell.object];
@@ -401,6 +483,8 @@ static CGFloat kMinCursorWidth = 50;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)scrollToVisibleLine:(BOOL)animated {
   if (self.editing) {
     UIScrollView* scrollView = (UIScrollView*)[self ancestorOrSelfWithClass:[UIScrollView class]];
@@ -410,6 +494,8 @@ static CGFloat kMinCursorWidth = 50;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)scrollToEditingLine:(BOOL)animated {
   UIScrollView* scrollView = (UIScrollView*)[self ancestorOrSelfWithClass:[UIScrollView class]];
   if (scrollView) {
@@ -417,5 +503,6 @@ static CGFloat kMinCursorWidth = 50;
     [scrollView setContentOffset:CGPointMake(0, self.top+offset) animated:animated];
   }
 }
+
 
 @end

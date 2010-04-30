@@ -29,14 +29,18 @@ typedef enum {
 } TTNavigationMode;
 
 @interface TTURLMap : NSObject {
-  NSMutableDictionary* _objectMappings;
-  NSMutableArray* _objectPatterns;
-  NSMutableArray* _fragmentPatterns;
-  NSMutableDictionary* _stringPatterns;
-  NSMutableDictionary* _schemes;
-  TTURLNavigatorPattern* _defaultObjectPattern;
-  TTURLNavigatorPattern* _hashPattern;
-  BOOL _invalidPatterns;
+  NSMutableDictionary*    _objectMappings;
+
+  NSMutableArray*         _objectPatterns;
+  NSMutableArray*         _fragmentPatterns;
+  NSMutableDictionary*    _stringPatterns;
+
+  NSMutableDictionary*    _schemes;
+
+  TTURLNavigatorPattern*  _defaultObjectPattern;
+  TTURLNavigatorPattern*  _hashPattern;
+
+  BOOL                    _invalidPatterns;
 }
 
 /**
@@ -167,24 +171,5 @@ typedef enum {
  */
 - (NSString*)URLForObject:(id)object;
 - (NSString*)URLForObject:(id)object withName:(NSString*)name;
-
-@end
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-@protocol TTURLObject <NSObject>
-
-@optional
-
-/**
- * Converts the object to a URL using TTURLMap.
- */
-@property(nonatomic,readonly) NSString* URLValue;
-
-/**
- * Converts the object to a specially-named URL using TTURLMap.
- */
-- (NSString*)URLValueWithName:(NSString*)name;
-
 
 @end

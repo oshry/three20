@@ -14,13 +14,14 @@
 // limitations under the License.
 //
 
+// UI
 #import "Three20/TTURLPattern.h"
 
 @interface TTURLGeneratorPattern : TTURLPattern {
   Class _targetClass;
 }
 
-@property(nonatomic) Class targetClass;
+@property (nonatomic) Class targetClass;
 
 - (id)initWithTargetClass:(Class)targetClass;
 

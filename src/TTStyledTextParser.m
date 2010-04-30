@@ -16,31 +16,65 @@
 
 #import "Three20/TTStyledTextParser.h"
 
-#import "Three20/TTGlobalCore.h"
+// Style
+#import "Three20/TTStyledElement.h"
+#import "Three20/TTStyledTextNode.h"
+#import "Three20/TTStyledLinkNode.h"
+#import "Three20/TTStyledInline.h"
+#import "Three20/TTStyledBlock.h"
+#import "Three20/TTStyledLineBreakNode.h"
+#import "Three20/TTStyledBoldNode.h"
+#import "Three20/TTStyledButtonNode.h"
+#import "Three20/TTStyledItalicNode.h"
+#import "Three20/TTStyledImageNode.h"
 
-#import "Three20/TTStyledNode.h"
+// Core
+#import "Three20/TTCorePreprocessorMacros.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation TTStyledTextParser
 
-@synthesize rootNode = _rootNode, parseLineBreaks = _parseLineBreaks, parseURLs = _parseURLs;
+@synthesize rootNode        = _rootNode;
+@synthesize parseLineBreaks = _parseLineBreaks;
+@synthesize parseURLs       = _parseURLs;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-// private
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)dealloc {
+  TT_RELEASE_SAFELY(_rootNode);
+  TT_RELEASE_SAFELY(_chars);
+  TT_RELEASE_SAFELY(_stack);
+
+  [super dealloc];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Private
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addNode:(TTStyledNode*)node {
   if (!_rootNode) {
     _rootNode = [node retain];
     _lastNode = node;
+
   } else if (_topElement) {
     [_topElement addChild:node];
+
   } else {
     _lastNode.nextSibling = node;
     _lastNode = node;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)pushNode:(TTStyledElement*)element {
   if (!_stack) {
     _stack = [[NSMutableArray alloc] init];
@@ -51,6 +85,8 @@
   _topElement = element;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)popNode {
   TTStyledElement* element = [_stack lastObject];
   if (element) {
@@ -60,16 +96,21 @@
   _topElement = [_stack lastObject];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)flushCharacters {
   if (_chars.length) {
     [self parseText:_chars];
   }
-  
+
   TT_RELEASE_SAFELY(_chars);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)parseURLs:(NSString*)string {
   NSInteger index = 0;
+
   while (index < string.length) {
     NSRange searchRange = NSMakeRange(index, string.length - index);
     NSRange startRange = [string rangeOfString:@"http://" options:NSCaseInsensitiveSearch
@@ -79,6 +120,7 @@
       TTStyledTextNode* node = [[[TTStyledTextNode alloc] initWithText:text] autorelease];
       [self addNode:node];
       break;
+
     } else {
       NSRange beforeRange = NSMakeRange(searchRange.location,
         startRange.location - searchRange.location);
@@ -97,6 +139,7 @@
         node.URL = URL;
         [self addNode:node];
         break;
+
       } else {
         NSRange URLRange = NSMakeRange(startRange.location,
                                              endRange.location - startRange.location);
@@ -110,32 +153,14 @@
   }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-// NSObject
-
-- (id)init {
-  if (self = [super init]) {
-    _rootNode = nil;
-    _topElement = nil;
-    _lastNode = nil;
-    _chars = nil;
-    _stack = nil;
-    _parseLineBreaks = NO;
-    _parseURLs = NO;
-  }
-  return self;
-}
-
-- (void)dealloc {
-  TT_RELEASE_SAFELY(_rootNode);
-  TT_RELEASE_SAFELY(_chars);
-  TT_RELEASE_SAFELY(_stack);
-  [super dealloc];
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// NSXMLParserDelegate
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark NSXMLParserDelegate
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName
     namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName
     attributes:(NSDictionary *)attributeDict {
@@ -146,28 +171,35 @@
     TTStyledInline* node = [[[TTStyledInline alloc] init] autorelease];
     node.className =  [attributeDict objectForKey:@"class"];
     [self pushNode:node];
+
   } else if ([tag isEqualToString:@"br"]) {
     TTStyledLineBreakNode* node = [[[TTStyledLineBreakNode alloc] init] autorelease];
     node.className =  [attributeDict objectForKey:@"class"];
     [self pushNode:node];
+
   } else if ([tag isEqualToString:@"div"] || [tag isEqualToString:@"p"]) {
     TTStyledBlock* node = [[[TTStyledBlock alloc] init] autorelease];
     node.className =  [attributeDict objectForKey:@"class"];
     [self pushNode:node];
+
   } else if ([tag isEqualToString:@"b"]) {
     TTStyledBoldNode* node = [[[TTStyledBoldNode alloc] init] autorelease];
     [self pushNode:node];
+
   } else if ([tag isEqualToString:@"i"]) {
     TTStyledItalicNode* node = [[[TTStyledItalicNode alloc] init] autorelease];
     [self pushNode:node];
+
   } else if ([tag isEqualToString:@"a"]) {
     TTStyledLinkNode* node = [[[TTStyledLinkNode alloc] init] autorelease];
     node.URL =  [attributeDict objectForKey:@"href"];
     [self pushNode:node];
+
   } else if ([tag isEqualToString:@"button"]) {
     TTStyledButtonNode* node = [[[TTStyledButtonNode alloc] init] autorelease];
     node.URL =  [attributeDict objectForKey:@"href"];
     [self pushNode:node];
+
   } else if ([tag isEqualToString:@"img"]) {
     TTStyledImageNode* node = [[[TTStyledImageNode alloc] init] autorelease];
     node.className =  [attributeDict objectForKey:@"class"];
@@ -183,21 +215,28 @@
     [self pushNode:node];
   }
 }
- 
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string {
   if (!_chars) {
     _chars = [string mutableCopy];
+
   } else {
     [_chars appendString:string];
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName
     namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
   [self flushCharacters];
   [self popNode];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSData *)parser:(NSXMLParser *)parser resolveExternalEntityName:(NSString *)entityName systemID:(NSString *)systemID {
   static NSDictionary* entityTable = nil;
   if (!entityTable) {
@@ -212,9 +251,14 @@
   return [entityTable objectForKey:entityName];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// public
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Public
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)parseXHTML:(NSString*)html {
   NSString* document = [NSString stringWithFormat:@"<x>%@</x>", html];
   NSData* data = [document dataUsingEncoding:html.fastestEncoding];
@@ -223,11 +267,14 @@
   [parser parse];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)parseText:(NSString*)string {
   if (_parseLineBreaks) {
     NSCharacterSet* newLines = [NSCharacterSet newlineCharacterSet];
     NSInteger index = 0;
     NSInteger length = string.length;
+
     while (1) {
       NSRange searchRange = NSMakeRange(index, length - index);
       NSRange range = [string rangeOfCharacterFromSet:newLines options:0 range:searchRange];
@@ -236,12 +283,13 @@
         NSRange textRange = NSMakeRange(index, range.location - index);
         NSString* substr = [string substringWithRange:textRange];
         [self parseURLs:substr];
-        
+
         // Add a line break node after the text
         TTStyledLineBreakNode* br = [[[TTStyledLineBreakNode alloc] init] autorelease];
         [self addNode:br];
 
         index = index + substr.length + 1;
+
       } else {
         // Find all text until the end of hte string and parse it
         NSString* substr = [string substringFromIndex:index];
@@ -249,12 +297,15 @@
         break;
       }
     }
+
   } else if (_parseURLs) {
     [self parseURLs:string];
+
   } else {
     TTStyledTextNode* node = [[[TTStyledTextNode alloc] initWithText:string] autorelease];
     [self addNode:node];
   }
 }
+
 
 @end

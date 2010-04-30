@@ -17,20 +17,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "Three20/TTCorePreprocessorMacros.h"
-
-#import "Three20/UIColorAdditions.h"
-#import "Three20/UIFontAdditions.h"
-#import "Three20/UIImageAdditions.h"
-#import "Three20/UINavigationControllerAdditions.h"
-#import "Three20/UITabBarControllerAdditions.h"
-#import "Three20/UIViewAdditions.h"
-#import "Three20/UITableViewAdditions.h"
-#import "Three20/UIWebViewAdditions.h"
-#import "Three20/UIToolbarAdditions.h"
-#import "Three20/UIWindowAdditions.h"
-#import "Three20/UIViewControllerAdditions.h"
-
 /**
  * @return the current runtime version of the iPhone OS.
  */
@@ -40,28 +26,6 @@ float TTOSVersion();
  * Checks if the link-time version of the OS is at least a certain version.
  */
 BOOL TTOSVersionIsAtLeast(float version);
-
-/**
- * @return a rectangle with dx and dy subtracted from the width and height, respectively.
- *
- * Example result: CGRectMake(x, y, w - dx, h - dy)
- */
-CGRect TTRectContract(CGRect rect, CGFloat dx, CGFloat dy);
-
-/**
- * @return a rectangle whose origin has been offset by dx, dy, and whose size has been
- * contracted by dx, dy.
- *
- * Example result: CGRectMake(x + dx, y + dy, w - dx, h - dy)
- */
-CGRect TTRectShift(CGRect rect, CGFloat dx, CGFloat dy);
-
-/**
- * @return a rectangle with the given insets.
- *
- * Example result: CGRectMake(x + left, y + top, w - (left + right), h - (top + bottom))
- */
-CGRect TTRectInset(CGRect rect, UIEdgeInsets insets);
 
 /**
  * @return TRUE if the keyboard is visible.
@@ -119,6 +83,23 @@ void TTAlert(NSString* message);
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Debug logging helpers
 
+#define TTLOGRECT(rect) \
+  TTDINFO(@"%s x=%f, y=%f, w=%f, h=%f", #rect, rect.origin.x, rect.origin.y, \
+  rect.size.width, rect.size.height)
+
+#define TTLOGPOINT(pt) \
+  TTDINFO(@"%s x=%f, y=%f", #pt, pt.x, pt.y)
+
+#define TTLOGSIZE(size) \
+  TTDINFO(@"%s w=%f, h=%f", #size, size.width, size.height)
+
+#define TTLOGEDGES(edges) \
+  TTDINFO(@"%s left=%f, right=%f, top=%f, bottom=%f", #edges, edges.left, edges.right, \
+  edges.top, edges.bottom)
+
+#define TTLOGHSV(_COLOR) \
+  TTDINFO(@"%s h=%f, s=%f, v=%f", #_COLOR, _COLOR.hue, _COLOR.saturation, _COLOR.value)
+
 #define TTLOGVIEWS(_VIEW) \
   { for (UIView* view = _VIEW; view; view = view.superview) { TTDINFO(@"%@", view); } }
 
@@ -157,12 +138,6 @@ extern const CGFloat ttkDefaultPortraitKeyboardHeight;
 extern const CGFloat ttkDefaultLandscapeKeyboardHeight;
 
 /**
- * A constant denoting that a corner should be rounded.
- * @const -1
- */
-extern const CGFloat ttkRounded;
-
-/**
  * The space between the edge of the screen and the cell edge in grouped table views.
  * @const 10 pixels
  */
@@ -177,20 +152,6 @@ extern const CGFloat ttkGroupedTableCellInset;
 
 #define TT_KEYBOARD_HEIGHT            ttkDefaultPortraitKeyboardHeight
 #define TT_LANDSCAPE_KEYBOARD_HEIGHT  ttkDefaultLandscapeKeyboardHeight
-
-#define TT_ROUNDED                    ttkRounded
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Color helpers
-
-#define RGBCOLOR(r,g,b) [UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 alpha:1]
-#define RGBACOLOR(r,g,b,a) [UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 \
-                            alpha:(a)]
-
-#define HSVCOLOR(h,s,v) [UIColor colorWithHue:(h) saturation:(s) value:(v) alpha:1]
-#define HSVACOLOR(h,s,v,a) [UIColor colorWithHue:(h) saturation:(s) value:(v) alpha:(a)]
-
-#define RGBA(r,g,b,a) (r)/255.0, (g)/255.0, (b)/255.0, (a)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Animation
@@ -224,8 +185,3 @@ extern const CGFloat ttkDefaultFlipTransitionDuration;
 #define TT_TRANSITION_DURATION      ttkDefaultTransitionDuration
 #define TT_FAST_TRANSITION_DURATION ttkDefaultFastTransitionDuration
 #define TT_FLIP_TRANSITION_DURATION ttkDefaultFlipTransitionDuration
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Images
-
-#define TTIMAGE(_URL) [[TTURLCache sharedCache] imageForURL:_URL]

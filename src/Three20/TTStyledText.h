@@ -16,60 +16,64 @@
 
 #import <UIKit/UIKit.h>
 
+// Network
 #import "Three20/TTURLRequestDelegate.h"
 
 @protocol TTStyledTextDelegate;
-@class TTStyledNode, TTStyledFrame, TTStyledBoxFrame;
+@class TTStyledNode;
+@class TTStyledFrame;
+@class TTStyledBoxFrame;
 
 @interface TTStyledText : NSObject <TTURLRequestDelegate> {
-  id<TTStyledTextDelegate> _delegate;
-  TTStyledNode* _rootNode;
-  TTStyledFrame* _rootFrame;
-  UIFont* _font;
-  CGFloat _width;
-  CGFloat _height;
+  TTStyledNode*   _rootNode;
+  TTStyledFrame*  _rootFrame;
+  UIFont*         _font;
+  CGFloat         _width;
+  CGFloat         _height;
   NSMutableArray* _invalidImages;
   NSMutableArray* _imageRequests;
+
+  id<TTStyledTextDelegate> _delegate;
 }
 
-@property(nonatomic,assign) id<TTStyledTextDelegate> delegate;
+@property (nonatomic, assign) id<TTStyledTextDelegate> delegate;
 
 /**
  * The first in the sequence of nodes that contain the styled text.
  */
-@property(nonatomic, retain) TTStyledNode* rootNode;
+@property (nonatomic, retain) TTStyledNode* rootNode;
 
 /**
  * The first in the sequence of frames of text calculated by the layout.
  */
-@property(nonatomic, readonly) TTStyledFrame* rootFrame;
+@property (nonatomic, readonly) TTStyledFrame* rootFrame;
 
 /**
  * The font that will be used to measure and draw all text.
  */
-@property(nonatomic, retain) UIFont* font;
+@property (nonatomic, retain) UIFont* font;
 
 /**
  * The width that the text should be constrained to fit within.
  */
-@property(nonatomic) CGFloat width;
+@property (nonatomic) CGFloat width;
 
 /**
  * The height of the text.
  *
  * The height is automatically calculated based on the width and the size of word-wrapped text.
  */
-@property(nonatomic, readonly) CGFloat height;
+@property (nonatomic, readonly) CGFloat height;
 
 /**
  * Indicates if the text needs layout to recalculate its size.
  */
-@property(nonatomic, readonly) BOOL needsLayout;
+@property (nonatomic, readonly) BOOL needsLayout;
 
 /**
- * Images that require loading 
+ * Images that require loading
  */
-@property(nonatomic, readonly) NSMutableArray* invalidImages;
+@property (nonatomic, readonly) NSMutableArray* invalidImages;
 
 /**
  * Constructs styled text with XHTML tags turned into style nodes.
@@ -85,20 +89,14 @@
  * Constructs styled text with all URLs transformed into links.
  *
  * Only URLs are parsed, not HTML markup. URLs are turned into links.
- */ 
+ */
 + (TTStyledText*)textWithURLs:(NSString*)source;
 + (TTStyledText*)textWithURLs:(NSString*)source lineBreaks:(BOOL)lineBreaks;
 
 - (id)initWithNode:(TTStyledNode*)rootNode;
 
-/**
- * 
- */
 - (void)layoutFrames;
 
-/**
- * 
- */
 - (void)layoutIfNeeded;
 
 /**
@@ -106,7 +104,7 @@
  */
 - (void)setNeedsLayout;
 
-/** 
+/**
  * Draws the text at a point.
  */
 - (void)drawAtPoint:(CGPoint)point;
@@ -131,35 +129,12 @@
  */
 - (TTStyledFrame*)getFrameForNode:(TTStyledNode*)node;
 
-/**
- *
- */
 - (void)addChild:(TTStyledNode*)child;
 
-/**
- *
- */
 - (void)addText:(NSString*)text;
 
-/**
- *
- */
 - (void)insertChild:(TTStyledNode*)child atIndex:(NSInteger)index;
 
-/**
- *
- */
 - (TTStyledNode*)getElementByClassName:(NSString*)className;
-
-@end
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-@protocol TTStyledTextDelegate <NSObject>
-
-@optional
-
-- (void)styledTextNeedsDisplay:(TTStyledText*)text;
 
 @end

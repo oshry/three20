@@ -14,11 +14,15 @@
 // limitations under the License.
 //
 
-#import "Three20/TTModelViewController.h"
-#import "Three20/TTTextEditor.h"
+// UI
+#import "Three20/TTViewController.h"
+#import "Three20/TTTextEditorDelegate.h"
 
-@protocol TTTableViewDataSource, TTMessageControllerDelegate;
-@class TTPickerTextField, TTActivityLabel;
+@protocol TTTableViewDataSource;
+@protocol TTMessageControllerDelegate;
+@class TTPickerTextField;
+@class TTActivityLabel;
+@class TTTextEditor;
 
 /**
  * A view controller for composing email like messages, which is visually
@@ -35,62 +39,66 @@
  * useful when you want to customize the fields presented to the user.
  */
 @interface TTMessageController : TTViewController <UITextFieldDelegate, TTTextEditorDelegate> {
-  id<TTMessageControllerDelegate> _delegate;
-  id<TTTableViewDataSource> _dataSource;
-  NSArray* _fields;
-  NSMutableArray* _fieldViews;
-  UIScrollView* _scrollView;
-  TTTextEditor* _textEditor;
-  TTActivityLabel* _activityView;
-  NSArray* _initialRecipients;
+@protected
+  NSArray*          _fields;
+  NSMutableArray*   _fieldViews;
+  UIScrollView*     _scrollView;
+  TTTextEditor*     _textEditor;
+  TTActivityLabel*  _activityView;
+  NSArray*          _initialRecipients;
+
   BOOL _showsRecipientPicker;
   BOOL _isModified;
+
+  id<TTTableViewDataSource>       _dataSource;
+  id<TTMessageControllerDelegate> _delegate;
 }
 
 /**
  * The delegate that will receive messages from the TTMessageControllerDelegate
  * protocol.
  */
-@property(nonatomic,assign) id<TTMessageControllerDelegate> delegate;
+@property (nonatomic, assign) id<TTMessageControllerDelegate> delegate;
 
 /**
  * The datasource used to autocomplete TTMessageRecipientFields. This class is
  * also responsible for determining how cells representing recipients are
  * labeled.
  */
-@property(nonatomic,retain) id<TTTableViewDataSource> dataSource;
+@property (nonatomic, retain) id<TTTableViewDataSource> dataSource;
 
 /**
  * An array of TTMessageField instances representing the editable fields. These
  * fields are rendered in order using appropriate views for each field type.
  */
-@property(nonatomic,retain) NSArray* fields;
+@property (nonatomic, retain) NSArray* fields;
 
 /**
  * A convenience property for editing the text value of the
  * TTMessageSubjectField. If no TTMessageSubjectField is found in the fields
  * array, nil will be returned from the getter and the setter will be a no-op.
  */
-@property(nonatomic,retain) NSString* subject;
+@property (nonatomic, retain) NSString* subject;
 
 /**
  * The body of the message. The body is not required for the user to send a
  * message.
  */
-@property(nonatomic,retain) NSString* body;
+@property (nonatomic, retain) NSString* body;
 
 /**
  * Controls whether a contact add button is shown in the views for
  * TTMessageRecipientField instances.
  */
-@property(nonatomic) BOOL showsRecipientPicker;
+@property (nonatomic) BOOL showsRecipientPicker;
 
 /**
  * Indicates if this message has been modified since it was originally
  * shown. If the message has been modified, the user will be asked for
  * confirmation before their cancel request is enacted.
  */
-@property(nonatomic,readonly) BOOL isModified;
+@property (nonatomic, readonly) BOOL isModified;
+
 
 /**
  * Initializes the class with an array of recipients. These recipients will
@@ -195,101 +203,5 @@
  * entered any subject or body text.
  */
 - (BOOL)messageShouldCancel;
-
-@end
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * A protocol for the object that implements the backend logic for the
- * TTMessageController. This object is responsible for delivering the message
- * that was composed in the view controller when the user chooses the send option.
- * It receive a message when the user cancels the creation of a message or when
- * they press the plus icon in a recipient field.
- */
-@protocol TTMessageControllerDelegate <NSObject>
-
-@optional
-
-/**
- * Received when the user touches the send button, indicating they wish to send
- * their message. Implementations should send the message represented by the
- * supplied fields. The fields array contains subclasses of TTMessageField. Its
- * last object is the body of the message, contained within a TTMessageTextField.
- */
-- (void)composeController:(TTMessageController*)controller didSendFields:(NSArray*)fields;
-
-/**
- * Received when the user has chosen to cancel creating their message. Upon
- * returning, the TTMessageController will be dismissed. Implementations
- * can use this callback to cleanup any resources.
- */
-- (void)composeControllerWillCancel:(TTMessageController*)controller;
-
-/**
- * Received in response to the user touching a contact add button. This method
- * should prepare and present a view for the user to choose a contact. Upon
- * choosing a contact, that contact should be added to the field.
- */
-- (void)composeControllerShowRecipientPicker:(TTMessageController*)controller;
-
-@end
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * The base class for all fields used the the TTMessageController.
- */
-@interface TTMessageField : NSObject {
-  NSString* _title;
-  BOOL _required;
-} 
-
-/**
- * The title of this field, which will be rendered along with the field's
- * contents.
- */
-@property(nonatomic,copy) NSString* title;
-
-/**
- * If true, the user must supply a value for this field before they will be
- * able to send their message.
- */
-@property(nonatomic) BOOL required;
-
-- (id)initWithTitle:(NSString*)title required:(BOOL)required;
-
-@end
-
-/**
- * A field for holding recipients, typically found in an address book.
- * Distinct values are rendered as individual cells. Once a cell has been
- * inserted, it is deleted as a whole.
- */
-@interface TTMessageRecipientField : TTMessageField {
-  NSArray* _recipients;
-} 
-
-@property(nonatomic,retain) NSArray* recipients;
-
-@end
-
-/**
- * A field for holding variable free form text.
- */
-@interface TTMessageTextField : TTMessageField {
-  NSString* _text;
-} 
-
-@property(nonatomic,copy) NSString* text;
-
-@end
-
-/**
- * A field for the subject of the message. This field's value is used to set
- * the title in the navigation bar. You should only have one of these fields
- * in your fields array.
- */
-@interface TTMessageSubjectField : TTMessageTextField
 
 @end

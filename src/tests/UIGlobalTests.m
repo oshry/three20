@@ -20,7 +20,8 @@
 #import <SenTestingKit/SenTestingKit.h>
 #import <UIKit/UIKit.h>
 
-#import "TTGlobalUI.h"
+#import "Three20/TTGlobalUI.h"
+#import "Three20/TTGlobalStyle.h"
 
 @interface UIGlobalTests : SenTestCase {
 }

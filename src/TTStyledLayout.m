@@ -16,32 +16,101 @@
 
 #import "Three20/TTStyledLayout.h"
 
-#import "Three20/TTGlobalUI.h"
-
-#import "Three20/TTStyledNode.h"
+// Style
+#import "Three20/TTGlobalStyle.h"
 #import "Three20/TTStyledFrame.h"
 #import "Three20/TTStyleSheet.h"
+#import "Three20/TTBoxStyle.h"
+#import "Three20/TTTextStyle.h"
+#import "Three20/TTStyledElement.h"
+#import "Three20/TTStyledInlineFrame.h"
+#import "Three20/TTStyledTextFrame.h"
+#import "Three20/TTStyledImageFrame.h"
+#import "Three20/UIFontAdditions.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+// Styled nodes
+#import "Three20/TTStyledImageNode.h"
+#import "Three20/TTStyledLinkNode.h"
+#import "Three20/TTStyledBoldNode.h"
+#import "Three20/TTStyledItalicNode.h"
+#import "Three20/TTStyledBlock.h"
+#import "Three20/TTStyledLineBreakNode.h"
+#import "Three20/TTStyledTextNode.h"
 
+// Core
+#import "Three20/TTGlobalCore.h"
+#import "Three20/TTCorePreprocessorMacros.h"
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation TTStyledLayout
 
-@synthesize width = _width, height = _height, rootFrame = _rootFrame, font = _font,
-            invalidImages = _invalidImages;
+@synthesize width         = _width;
+@synthesize height        = _height;
+@synthesize rootFrame     = _rootFrame;
+@synthesize font          = _font;
+@synthesize invalidImages = _invalidImages;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-// private
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (id)initWithRootNode:(TTStyledNode*)rootNode {
+  if (self = [super init]) {
+    _rootNode = rootNode;
+  }
+
+  return self;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (id)initWithX:(CGFloat)x width:(CGFloat)width height:(CGFloat)height {
+  if (self = [super init]) {
+    _x = x;
+    _minX = x;
+    _width = width;
+    _height = height;
+  }
+
+  return self;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)dealloc {
+  TT_RELEASE_SAFELY(_rootFrame);
+  TT_RELEASE_SAFELY(_font);
+  TT_RELEASE_SAFELY(_boldFont);
+  TT_RELEASE_SAFELY(_italicFont);
+  TT_RELEASE_SAFELY(_linkStyle);
+  TT_RELEASE_SAFELY(_invalidImages);
+
+  [super dealloc];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Private
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)boldVersionOfFont:(UIFont*)font {
   // XXXjoe Clearly this doesn't work if your font is not the system font
   return [UIFont boldSystemFontOfSize:font.pointSize];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)italicVersionOfFont:(UIFont*)font {
   // XXXjoe Clearly this doesn't work if your font is not the system font
   return [UIFont italicSystemFontOfSize:font.pointSize];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyledNode*)findLastNode:(TTStyledNode*)node {
   TTStyledNode* lastNode = nil;
   while (node) {
@@ -56,6 +125,8 @@
   return lastNode;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)boldFont {
   if (!_boldFont) {
     _boldFont = [[self boldVersionOfFont:self.font] retain];
@@ -63,6 +134,8 @@
   return _boldFont;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)italicFont {
   if (!_italicFont) {
     _italicFont = [[self italicVersionOfFont:self.font] retain];
@@ -70,6 +143,8 @@
   return _italicFont;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)linkStyle {
   if (!_linkStyle) {
     _linkStyle = [TTSTYLE(linkText:) retain];
@@ -77,6 +152,8 @@
   return _linkStyle;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyledNode*)lastNode {
   if (!_lastNode) {
     _lastNode = [self findLastNode:_rootNode];
@@ -84,6 +161,8 @@
   return _lastNode;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)offsetFrame:(TTStyledFrame*)frame by:(CGFloat)y {
    frame.y += y;
 
@@ -97,6 +176,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)expandLineWidth:(CGFloat)width {
   _lineWidth += width;
   TTStyledInlineFrame* inlineFrame = _inlineFrame;
@@ -106,6 +187,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)inflateLineHeight:(CGFloat)height {
   if (height > _lineHeight) {
     _lineHeight = height;
@@ -121,6 +204,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addFrame:(TTStyledFrame*)frame {
   if (!_rootFrame) {
     _rootFrame = [frame retain];
@@ -136,17 +221,23 @@
   _lastFrame = frame;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)pushFrame:(TTStyledBoxFrame*)frame {
   [self addFrame:frame];
   frame.parentFrame = _topFrame;
   _topFrame = frame;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)popFrame {
   _lastFrame = _topFrame;
   _topFrame = _topFrame.parentFrame;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyledFrame*)addContentFrame:(TTStyledFrame*)frame width:(CGFloat)width {
   [self addFrame:frame];
   if (!_lineFirstFrame) {
@@ -156,16 +247,22 @@
   return frame;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addContentFrame:(TTStyledFrame*)frame width:(CGFloat)width height:(CGFloat)height {
   frame.bounds = CGRectMake(_x, _height, width, height);
   [self addContentFrame:frame width:width];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addAbsoluteFrame:(TTStyledFrame*)frame width:(CGFloat)width height:(CGFloat)height {
   frame.bounds = CGRectMake(_x, _height, width, height);
   [self addFrame:frame];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyledInlineFrame*)addInlineFrame:(TTStyle*)style element:(TTStyledElement*)element
                         width:(CGFloat)width height:(CGFloat)height {
   TTStyledInlineFrame* frame = [[[TTStyledInlineFrame alloc] initWithElement:element] autorelease];
@@ -178,6 +275,8 @@
   return frame;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyledInlineFrame*)cloneInlineFrame:(TTStyledInlineFrame*)frame {
   TTStyledInlineFrame* parent = frame.inlineParentFrame;
   if (parent) {
@@ -191,6 +290,8 @@
   return clone;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyledFrame*)addBlockFrame:(TTStyle*)style element:(TTStyledElement*)element
                   width:(CGFloat)width height:(CGFloat)height {
   TTStyledBoxFrame* frame = [[[TTStyledBoxFrame alloc] initWithElement:element] autorelease];
@@ -200,6 +301,8 @@
   return frame;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)checkFloats {
   if (_floatHeight && _height > _floatHeight) {
     _minX -= _floatLeftWidth;
@@ -210,6 +313,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)breakLine {
   if (_inlineFrame) {
     TTStyledInlineFrame* inlineFrame = _inlineFrame;
@@ -259,6 +364,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyledFrame*)addFrameForText:(NSString*)text element:(TTStyledElement*)element
                   node:(TTStyledTextNode*)node width:(CGFloat)width height:(CGFloat)height {
   TTStyledTextFrame* frame = [[[TTStyledTextFrame alloc] initWithText:text element:element
@@ -268,6 +375,8 @@
   return frame;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutElement:(TTStyledElement*)elt {
   TTStyle* style = nil;
   if (elt.className) {
@@ -287,7 +396,7 @@
     textStyle = [style firstStyleOfClass:[TTTextStyle class]];
     if (textStyle) {
       font = textStyle.font;
-    }        
+    }
   }
   if (!font) {
     if ([elt isKindOfClass:[TTStyledLinkNode class]]
@@ -304,7 +413,7 @@
   self.font = font;
 
   TTBoxStyle* padding = style ? [style firstStyleOfClass:[TTBoxStyle class]] : nil;
-  
+
   if (padding && padding.position) {
     TTStyledFrame* blockFrame = [self addBlockFrame:style element:elt width:_width height:_height];
 
@@ -321,13 +430,13 @@
       if (!_invalidImages && layout.invalidImages) {
         _invalidImages = [layout.invalidImages retain];
       }
-      
+
       TTStyledFrame* frame = [self addContentFrame:layout.rootFrame width:layout.width];
-      
+
       CGFloat frameHeight = layout.height - _height;
       contentWidth += layout.width;
       contentHeight += frameHeight;
-      
+
       if (padding.position == TTPositionFloatLeft) {
         frame.x += _floatLeftWidth;
         _floatLeftWidth += contentWidth;
@@ -345,7 +454,7 @@
         _x -= contentWidth;
         _width -= contentWidth;
       }
-      
+
       blockFrame.width = layout.width + padding.padding.left + padding.padding.right;
       blockFrame.height = frameHeight + padding.padding.top + padding.padding.bottom;
     }
@@ -354,7 +463,7 @@
             floatRightWidth = _floatRightWidth, floatHeight = _floatHeight;
     BOOL isBlock = [elt isKindOfClass:[TTStyledBlock class]];
     TTStyledFrame* blockFrame = nil;
-    
+
     if (isBlock) {
       if (padding) {
         _x += padding.margin.left;
@@ -380,7 +489,7 @@
       if (style) {
         _inlineFrame = [self addInlineFrame:style element:elt width:0 height:0];
       }
-    }  
+    }
 
     if (padding) {
       if (isBlock) {
@@ -394,7 +503,7 @@
         _height += padding.padding.top;
       }
     }
-  
+
     if (elt.firstChild) {
       [self layout:elt.firstChild container:elt];
     }
@@ -409,7 +518,7 @@
       }
 
       blockFrame.height = _height - blockFrame.height;
-      
+
       if (padding) {
         if (blockFrame.height < padding.minSize.height) {
           _height += padding.minSize.height - blockFrame.height;
@@ -437,7 +546,7 @@
       _inlineFrame = _inlineFrame.inlineParentFrame;
     }
   }
-  
+
   self.font = lastFont;
 
   if (style) {
@@ -445,6 +554,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutImage:(TTStyledImageNode*)imageNode container:(TTStyledElement*)element {
   UIImage* image = imageNode.image;
   if (!image && imageNode.URL) {
@@ -462,7 +573,7 @@
   CGFloat imageHeight = imageNode.height ? imageNode.height : image.size.height;
   CGFloat contentWidth = imageWidth;
   CGFloat contentHeight = imageHeight;
-  
+
   if (padding && padding.position != TTPositionAbsolute) {
     _x += padding.margin.left;
     contentWidth += padding.margin.left + padding.margin.right;
@@ -482,7 +593,7 @@
   TTStyledImageFrame* frame = [[[TTStyledImageFrame alloc] initWithElement:element
                                                            node:imageNode] autorelease];
   frame.style = style;
-  
+
   if (!padding || !padding.position) {
     [self addContentFrame:frame width:imageWidth height:imageHeight];
     [self expandLineWidth:contentWidth];
@@ -519,10 +630,12 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutText:(TTStyledTextNode*)textNode container:(TTStyledElement*)element {
   NSString* text = textNode.text;
   NSUInteger length = text.length;
-          
+
   if (!textNode.nextSibling && textNode == _rootNode) {
     // This is the only node, so measure it all at once and move on
     CGSize textSize = [text sizeWithFont:_font
@@ -539,7 +652,7 @@
   NSInteger index = 0;
   NSInteger lineStartIndex = 0;
   CGFloat frameWidth = 0;
-        
+
   while (index < length) {
     // Search for the next whitespace character
     NSRange searchRange = NSMakeRange(index, length - index);
@@ -577,7 +690,7 @@
           lineStartIndex = lineRange.location + lineRange.length;
           frameWidth = 0;
         }
-        
+
         frameWidth += letterSize.width;
         [self expandLineWidth:letterSize.width];
         [self inflateLineHeight:wordSize.height];
@@ -603,7 +716,7 @@
           [self addFrameForText:line element:element node:textNode width:frameWidth
                 height:_lineHeight ? _lineHeight : [_font ttLineHeight]];
         }
-        
+
         if (_lineWidth) {
           [self breakLine];
         }
@@ -644,66 +757,14 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
-// NSObject
+#pragma mark -
+#pragma mark Public
 
-- (id)initWithRootNode:(TTStyledNode*)rootNode {
-  if (self = [self init]) {
-    _rootNode = rootNode;
-  }
-  return self;
-}
 
-- (id)initWithX:(CGFloat)x width:(CGFloat)width height:(CGFloat)height {
-  if (self = [self init]) {
-    _x = x;
-    _minX = x;
-    _width = width;
-    _height = height;
-  }
-  return self;
-}
-
-- (id)init {
-  if (self = [super init]) {
-    _x = 0;
-    _width = 0;
-    _height = 0;
-    _lineWidth = 0;
-    _lineHeight = 0;
-    _minX = 0;
-    _floatLeftWidth = 0;
-    _floatRightWidth = 0;
-    _floatHeight = 0;
-    _rootFrame = nil;
-    _lineFirstFrame = nil;
-    _inlineFrame = nil;
-    _topFrame = nil;
-    _lastFrame = nil;
-    _font = nil;
-    _boldFont = nil;
-    _italicFont = nil;
-    _linkStyle = nil;
-    _rootNode = nil;
-    _lastNode = nil;
-    _invalidImages = nil;
-  }
-  return self;
-}
-
-- (void)dealloc {
-  TT_RELEASE_SAFELY(_rootFrame);
-  TT_RELEASE_SAFELY(_font);
-  TT_RELEASE_SAFELY(_boldFont);
-  TT_RELEASE_SAFELY(_italicFont);
-  TT_RELEASE_SAFELY(_linkStyle);
-  TT_RELEASE_SAFELY(_invalidImages);
-  [super dealloc];
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-// public
-
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)font {
   if (!_font) {
     self.font = TTSTYLEVAR(font);
@@ -711,6 +772,8 @@
   return _font;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setFont:(UIFont*)font {
   if (font != _font) {
     [_font release];
@@ -720,6 +783,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layout:(TTStyledNode*)node container:(TTStyledElement*)element {
   while (node) {
     if ([node isKindOfClass:[TTStyledImageNode class]]) {
@@ -732,16 +797,19 @@
       TTStyledTextNode* textNode = (TTStyledTextNode*)node;
       [self layoutText:textNode container:element];
     }
-    
+
     node = node.nextSibling;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layout:(TTStyledNode*)node {
   [self layout:node container:nil];
   if (_lineWidth) {
     [self breakLine];
   }
 }
+
 
 @end

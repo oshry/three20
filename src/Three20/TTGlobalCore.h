@@ -16,27 +16,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Three20/TTCorePreprocessorMacros.h"
-
-// Debugging
-#import "Three20/TTDebug.h"
-
-// Core Additions
-#import "Three20/NSObjectAdditions.h"
-#import "Three20/NSDataAdditions.h"
-#import "Three20/NSStringAdditions.h"
-#import "Three20/NSArrayAdditions.h"
-#import "Three20/NSMutableArrayAdditions.h"
-#import "Three20/NSMutableDictionaryAdditions.h"
-#import "Three20/NSDateAdditions.h"
-
 /**
  * Creates a mutable array which does not retain references to the objects it contains.
+ *
+ * Typically used with arrays of delegates.
  */
 NSMutableArray* TTCreateNonRetainingArray();
 
 /**
  * Creates a mutable dictionary which does not retain references to the values it contains.
+ *
+ * Typically used with dictionaries of delegates.
  */
 NSMutableDictionary* TTCreateNonRetainingDictionary();
 

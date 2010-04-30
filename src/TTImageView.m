@@ -16,16 +16,23 @@
 
 #import "Three20/TTImageView.h"
 
-#import "Three20/TTGlobalCore.h"
-#import "Three20/TTGlobalUI.h"
-
+// UI
+#import "Three20/TTImageViewDelegate.h"
 #import "Three20/TTImageLayer.h"
+#import "Three20/UIImageAdditions.h"
 
+// UI (private)
+#import "Three20/TTImageViewInternal.h"
+
+// Style
+#import "Three20/TTShape.h"
+#import "Three20/TTStyleContext.h"
+#import "Three20/TTContentStyle.h"
+
+// Network
 #import "Three20/TTURLCache.h"
 #import "Three20/TTURLImageResponse.h"
-#import "Three20/TTShape.h"
-
-#import "Three20/TTImageViewInternal.h"
+#import "Three20/TTURLRequest.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,13 +44,8 @@
 @synthesize image               = _image;
 @synthesize defaultImage        = _defaultImage;
 @synthesize autoresizesToImage  = _autoresizesToImage;
-@synthesize delegate            = _delegate;
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark NSObject
+@synthesize delegate = _delegate;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +70,7 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark UIView
 
@@ -88,7 +90,7 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark TTView
 
@@ -104,7 +106,7 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark TTURLRequestDelegate
 
@@ -113,7 +115,7 @@
 - (void)requestDidStartLoad:(TTURLRequest*)request {
   [_request release];
   _request = [request retain];
-  
+
   [self imageViewDidStartLoad];
   if ([_delegate respondsToSelector:@selector(imageViewDidStartLoad:)]) {
     [_delegate imageViewDidStartLoad:self];
@@ -125,7 +127,7 @@
 - (void)requestDidFinishLoad:(TTURLRequest*)request {
   TTURLImageResponse* response = request.response;
   [self setImage:response.image];
-  
+
   TT_RELEASE_SAFELY(_request);
 }
 
@@ -256,7 +258,7 @@
   if (nil != _image && nil != _urlPath && [urlPath isEqualToString:_urlPath]) {
     return;
   }
-  
+
   [self stopLoading];
 
   {
@@ -264,7 +266,7 @@
     [_urlPath release];
     _urlPath = urlPathCopy;
   }
-  
+
   if (nil == _urlPath || 0 == _urlPath.length) {
     // Setting the url path to an empty/nil path, so let's restore the default image.
     self.image = _defaultImage;
@@ -272,20 +274,6 @@
   } else {
     [self reload];
   }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Deprecated
-- (void)setURL:(NSString*)urlPath {
-  [self setUrlPath:urlPath];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Deprecated
-- (NSString*)URL {
-  return [self urlPath];
 }
 
 

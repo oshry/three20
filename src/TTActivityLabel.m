@@ -16,30 +16,38 @@
 
 #import "Three20/TTActivityLabel.h"
 
-#import "Three20/TTGlobalUI.h"
+// UI
 #import "Three20/TTGlobalUINavigator.h"
-
 #import "Three20/TTView.h"
-#import "Three20/TTDefaultStyleSheet.h"
 #import "Three20/TTButton.h"
+#import "Three20/UIViewAdditions.h"
+#import "Three20/UIFontAdditions.h"
+
+// Style
+#import "Three20/TTGlobalStyle.h"
+#import "Three20/TTDefaultStyleSheet.h"
+
+// Core
+#import "Three20/TTCorePreprocessorMacros.h"
+
+static CGFloat kMargin          = 10;
+static CGFloat kPadding         = 15;
+static CGFloat kBannerPadding   = 8;
+static CGFloat kSpacing         = 6;
+static CGFloat kProgressMargin  = 6;
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-static CGFloat kMargin = 10;
-static CGFloat kPadding = 15;
-static CGFloat kBannerPadding = 8;
-static CGFloat kSpacing = 6;
-static CGFloat kProgressMargin = 6;
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
+///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation TTActivityLabel
 
-@synthesize style = _style, progress = _progress, smoothesProgress = _smoothesProgress;
+@synthesize style             = _style;
+@synthesize progress          = _progress;
+@synthesize smoothesProgress  = _smoothesProgress;
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// NSObject
-
 - (id)initWithFrame:(CGRect)frame style:(TTActivityLabelStyle)style text:(NSString*)text {
   if (self = [super initWithFrame:frame]) {
     _style = style;
@@ -47,7 +55,7 @@ static CGFloat kProgressMargin = 6;
     _smoothesProgress = NO;
     _smoothTimer =nil;
     _progressView = nil;
-    
+
     _bezelView = [[TTView alloc] init];
     if (_style == TTActivityLabelStyleBlackBezel) {
       _bezelView.backgroundColor = [UIColor clearColor];
@@ -109,7 +117,7 @@ static CGFloat kProgressMargin = 6;
       _label.shadowColor = [UIColor colorWithWhite:0 alpha:0.3];
       _label.shadowOffset = CGSizeMake(1, 1);
     }
-    
+
     [self addSubview:_bezelView];
     [_bezelView addSubview:_activityIndicator];
     [_bezelView addSubview:_label];
@@ -118,18 +126,35 @@ static CGFloat kProgressMargin = 6;
   return self;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame style:(TTActivityLabelStyle)style {
-  return [self initWithFrame:frame style:style text:nil];
+  if (self = [self initWithFrame:frame style:style text:nil]) {
+  }
+
+  return self;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithStyle:(TTActivityLabelStyle)style {
-  return [self initWithFrame:CGRectZero style:style text:nil];
+  if (self = [self initWithFrame:CGRectZero style:style text:nil]) {
+  }
+
+  return self;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
-  return [self initWithFrame:frame style:TTActivityLabelStyleWhiteBox text:nil];
+  if (self = [self initWithFrame:frame style:TTActivityLabelStyleWhiteBox text:nil]) {
+  }
+
+  return self;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   TT_INVALIDATE_TIMER(_smoothTimer);
   TT_RELEASE_SAFELY(_bezelView);
@@ -139,9 +164,14 @@ static CGFloat kProgressMargin = 6;
   [super dealloc];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// UIView
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UIView
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutSubviews {
   [super layoutSubviews];
 
@@ -156,7 +186,7 @@ static CGFloat kProgressMargin = 6;
       indicatorSize = _activityIndicator.height;
     }
   }
-  
+
   CGFloat contentWidth = indicatorSize + kSpacing + textSize.width;
   CGFloat contentHeight = textSize.height > indicatorSize ? textSize.height : indicatorSize;
 
@@ -183,19 +213,19 @@ static CGFloat kProgressMargin = 6;
     bezelWidth = maxBevelWidth;
     contentWidth = bezelWidth - (kSpacing + indicatorSize);
   }
-  
+
   CGFloat textMaxWidth = (bezelWidth - (indicatorSize + kSpacing)) - padding*2;
   CGFloat textWidth = textSize.width;
   if (textWidth > textMaxWidth) {
     textWidth = textMaxWidth;
   }
-      
+
   _bezelView.frame = CGRectMake(floor(self.width/2 - bezelWidth/2),
                                 floor(self.height/2 - bezelHeight/2),
                                 bezelWidth, bezelHeight);
-  
+
   CGFloat y = padding + floor((bezelHeight - padding*2)/2 - contentHeight/2);
-  
+
   if (_progressView) {
     if (_style == TTActivityLabelStyleBlackBanner) {
       y += kBannerPadding/2;
@@ -204,7 +234,7 @@ static CGFloat kProgressMargin = 6;
                                      bezelWidth - kProgressMargin*2, _progressView.height);
     y += _progressView.height + kSpacing-1;
   }
-  
+
   _label.frame = CGRectMake(floor((bezelWidth/2 - contentWidth/2) + indicatorSize + kSpacing), y,
                             textWidth, textSize.height);
 
@@ -212,6 +242,8 @@ static CGFloat kProgressMargin = 6;
                                         indicatorSize, indicatorSize);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGSize)sizeThatFits:(CGSize)size {
   CGFloat padding;
   if (_style == TTActivityLabelStyleBlackBezel || _style == TTActivityLabelStyleWhiteBezel) {
@@ -228,6 +260,8 @@ static CGFloat kProgressMargin = 6;
   return CGSizeMake(size.width, height);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)smoothTimer {
   if (_progressView.progress < _progress) {
     _progressView.progress += 0.01;
@@ -236,42 +270,60 @@ static CGFloat kProgressMargin = 6;
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// public
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Public
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)text {
   return _label.text;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setText:(NSString*)text {
   _label.text = text;
   [self setNeedsLayout];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)font {
   return _label.font;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setFont:(UIFont*)font {
   _label.font = font;
   [self setNeedsLayout];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)isAnimating {
   return _activityIndicator.isAnimating;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setIsAnimating:(BOOL)isAnimating {
   if (isAnimating) {
     [_activityIndicator startAnimating];
+
   } else {
     [_activityIndicator stopAnimating];
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setProgress:(float)progress {
   _progress = progress;
-  
+
   if (!_progressView) {
     _progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
     _progressView.progress = 0;
@@ -288,5 +340,6 @@ static CGFloat kProgressMargin = 6;
     _progressView.progress = progress;
   }
 }
+
 
 @end

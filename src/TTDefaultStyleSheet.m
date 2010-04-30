@@ -16,19 +16,50 @@
 
 #import "Three20/TTDefaultStyleSheet.h"
 
-#import "Three20/TTGlobalUI.h"
+// UI
+#import "Three20/UIColorAdditions.h"
 
+// Style
+#import "Three20/TTGlobalStyle.h"
 #import "Three20/TTStyle.h"
-#import "Three20/TTShape.h"
+
+// - Styles
+#import "Three20/TTInsetStyle.h"
+#import "Three20/TTShapeStyle.h"
+#import "Three20/TTSolidFillStyle.h"
+#import "Three20/TTTextStyle.h"
+#import "Three20/TTImageStyle.h"
+#import "Three20/TTSolidBorderStyle.h"
+#import "Three20/TTShadowStyle.h"
+#import "Three20/TTInnerShadowStyle.h"
+#import "Three20/TTBevelBorderStyle.h"
+#import "Three20/TTLinearGradientFillStyle.h"
+#import "Three20/TTFourBorderStyle.h"
+#import "Three20/TTLinearGradientBorderStyle.h"
+#import "Three20/TTReflectiveFillStyle.h"
+#import "Three20/TTBoxStyle.h"
+#import "Three20/TTPartStyle.h"
+#import "Three20/TTContentStyle.h"
+#import "Three20/TTBlendStyle.h"
+
+// - Shapes
+#import "Three20/TTRectangleShape.h"
+#import "Three20/TTRoundedRectangleShape.h"
+#import "Three20/TTRoundedLeftArrowShape.h"
+#import "Three20/TTRoundedRightArrowShape.h"
+
+// Network
+#import "Three20/TTGlobalNetwork.h"
 #import "Three20/TTURLCache.h"
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation TTDefaultStyleSheet
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// styles
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)linkText:(UIControlState)state {
   if (state == UIControlStateHighlighted) {
     return
@@ -43,12 +74,16 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)linkHighlighted {
   return
     [TTShapeStyle styleWithShape:[TTRoundedRectangleShape shapeWithRadius:4.5] next:
     [TTSolidFillStyle styleWithColor:[UIColor colorWithWhite:0 alpha:0.25] next:nil]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)thumbView:(UIControlState)state {
   if (state & UIControlStateHighlighted) {
     return
@@ -64,6 +99,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)toolbarButton:(UIControlState)state {
   return [self toolbarButtonForState:state
                shape:[TTRoundedRectangleShape shapeWithRadius:4.5]
@@ -71,6 +108,8 @@
                font:nil];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)toolbarBackButton:(UIControlState)state {
   return
     [self toolbarButtonForState:state
@@ -79,6 +118,8 @@
           font:nil];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)toolbarForwardButton:(UIControlState)state {
   return
     [self toolbarButtonForState:state
@@ -87,6 +128,8 @@
           font:nil];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)toolbarRoundButton:(UIControlState)state {
   return
     [self toolbarButtonForState:state
@@ -95,6 +138,8 @@
           font:nil];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)blackToolbarButton:(UIControlState)state {
   return
     [self toolbarButtonForState:state
@@ -103,6 +148,8 @@
           font:nil];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)grayToolbarButton:(UIControlState)state {
   return
     [self toolbarButtonForState:state
@@ -111,6 +158,8 @@
           font:nil];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)blackToolbarForwardButton:(UIControlState)state {
   return
     [self toolbarButtonForState:state
@@ -119,6 +168,8 @@
           font:nil];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)blackToolbarRoundButton:(UIControlState)state {
   return
     [self toolbarButtonForState:state
@@ -127,6 +178,8 @@
           font:nil];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)searchTextField {
   return
     [TTShapeStyle styleWithShape:[TTRoundedRectangleShape shapeWithRadius:TT_ROUNDED] next:
@@ -138,6 +191,8 @@
                         width:1 lightSource:270 next:nil]]]]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)searchBar {
   UIColor* color = TTSTYLEVAR(searchBarTintColor);
   UIColor* highlight = [color multiplyHue:0 saturation:0 value:1.2];
@@ -147,6 +202,8 @@
     [TTFourBorderStyle styleWithTop:nil right:nil bottom:shadow left:nil width:1 next:nil]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)searchBarBottom {
   UIColor* color = TTSTYLEVAR(searchBarTintColor);
   UIColor* highlight = [color multiplyHue:0 saturation:0 value:1.2];
@@ -156,6 +213,8 @@
     [TTFourBorderStyle styleWithTop:shadow right:nil bottom:nil left:nil width:1 next:nil]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)blackSearchBar {
   UIColor* highlight = [UIColor colorWithWhite:1 alpha:0.05];
   UIColor* mid = [UIColor colorWithWhite:0.4 alpha:0.6];
@@ -166,6 +225,8 @@
     [TTFourBorderStyle styleWithTop:nil right:nil bottom:highlight left:nil width:1 next:nil]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tableHeader {
   UIColor* color = TTSTYLEVAR(tableHeaderTintColor);
   UIColor* highlight = [color multiplyHue:0 saturation:0 value:1.1];
@@ -176,6 +237,8 @@
                        left:nil width:1 next:nil]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)pickerCell:(UIControlState)state {
   if (state & UIControlStateSelected) {
     return
@@ -198,6 +261,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)searchTableShadow {
   return
     [TTLinearGradientFillStyle styleWithColor1:RGBACOLOR(0, 0, 0, 0.18)
@@ -206,12 +271,16 @@
                        width: 1 next:nil]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)blackBezel {
   return
     [TTShapeStyle styleWithShape:[TTRoundedRectangleShape shapeWithRadius:10] next:
     [TTSolidFillStyle styleWithColor:RGBACOLOR(0, 0, 0, 0.7) next:nil]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)whiteBezel {
   return
     [TTShapeStyle styleWithShape:[TTRoundedRectangleShape shapeWithRadius:10] next:
@@ -219,6 +288,8 @@
     [TTSolidBorderStyle styleWithColor:RGBCOLOR(178, 178, 178) width:1 next:nil]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)blackBanner {
   return
     [TTSolidFillStyle styleWithColor:RGBACOLOR(0, 0, 0, 0.5) next:
@@ -227,6 +298,8 @@
                        left: nil width:1 next:nil]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)badgeWithFontSize:(CGFloat)fontSize {
   return
     [TTShapeStyle styleWithShape:[TTRoundedRectangleShape shapeWithRadius:TT_ROUNDED] next:
@@ -240,18 +313,26 @@
                  color:[UIColor whiteColor] next:nil]]]]]]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)miniBadge {
   return [self badgeWithFontSize:12];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)badge {
   return [self badgeWithFontSize:15];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)largeBadge {
   return [self badgeWithFontSize:17];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabBar {
   UIColor* border = [TTSTYLEVAR(tabBarTintColor) multiplyHue:0 saturation:0 value:0.7];
   return
@@ -259,6 +340,8 @@
     [TTFourBorderStyle styleWithTop:nil right:nil bottom:border left:nil width:1 next:nil]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabStrip {
   UIColor* border = [TTSTYLEVAR(tabTintColor) multiplyHue:0 saturation:0 value:0.4];
   return
@@ -266,6 +349,8 @@
     [TTFourBorderStyle styleWithTop:nil right:nil bottom:border left:nil width:1 next:nil]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabGrid {
   UIColor* color = TTSTYLEVAR(tabTintColor);
   UIColor* lighter = [color multiplyHue:1 saturation:0.9 value:1.1];
@@ -280,12 +365,16 @@
     [TTSolidBorderStyle styleWithColor:shadow width:1 next:nil]]]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabGridTabImage:(UIControlState)state {
   return
     [TTImageStyle styleWithImageURL:nil defaultImage:nil contentMode:UIViewContentModeLeft
                   size:CGSizeZero next:nil];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabGridTab:(UIControlState)state corner:(short)corner {
   TTShape* shape = nil;
   if (corner == 1) {
@@ -303,10 +392,10 @@
   } else {
     shape = [TTRectangleShape shape];
   }
-  
+
   UIColor* highlight = RGBACOLOR(255, 255, 255, 0.7);
   UIColor* shadow = [TTSTYLEVAR(tabTintColor) multiplyHue:1 saturation:1.1 value:0.88];
-  
+
   if (state == UIControlStateSelected) {
     return
       [TTShapeStyle styleWithShape:shape next:
@@ -329,38 +418,54 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabGridTabTopLeft:(UIControlState)state {
   return [self tabGridTab:state corner:1];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabGridTabTopRight:(UIControlState)state {
   return [self tabGridTab:state corner:2];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabGridTabBottomRight:(UIControlState)state {
   return [self tabGridTab:state corner:3];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabGridTabBottomLeft:(UIControlState)state {
   return [self tabGridTab:state corner:4];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabGridTabLeft:(UIControlState)state {
   return [self tabGridTab:state corner:5];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabGridTabRight:(UIControlState)state {
   return [self tabGridTab:state corner:6];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabGridTabCenter:(UIControlState)state {
   return [self tabGridTab:state corner:0];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tab:(UIControlState)state {
   if (state == UIControlStateSelected) {
     UIColor* border = [TTSTYLEVAR(tabBarTintColor) multiplyHue:0 saturation:0 value:0.7];
-    
+
     return
       [TTShapeStyle styleWithShape:[TTRoundedRectangleShape shapeWithTopLeft:4.5 topRight:4.5
                                                             bottomRight:0 bottomLeft:0] next:
@@ -382,6 +487,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabRound:(UIControlState)state {
   if (state == UIControlStateSelected) {
     return
@@ -404,6 +511,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabOverflowLeft {
   UIImage* image = TTIMAGE(@"bundle://Three20.bundle/images/overflowLeft.png");
   TTImageStyle *style = [TTImageStyle styleWithImage:image next:nil];
@@ -411,6 +520,8 @@
   return style;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)tabOverflowRight {
   UIImage* image = TTIMAGE(@"bundle://Three20.bundle/images/overflowRight.png");
   TTImageStyle *style = [TTImageStyle styleWithImage:image next:nil];
@@ -418,12 +529,16 @@
   return style;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)rounded {
   return
     [TTShapeStyle styleWithShape:[TTRoundedRectangleShape shapeWithRadius:8] next:
     [TTContentStyle styleWithNext:nil]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)postTextEditor {
   return
     [TTInsetStyle styleWithInset:UIEdgeInsetsMake(6, 5, 6, 5) next:
@@ -431,6 +546,8 @@
     [TTSolidFillStyle styleWithColor:[UIColor whiteColor] next:nil]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)photoCaption {
   return
     [TTSolidFillStyle styleWithColor:[UIColor colorWithWhite:0 alpha:0.5] next:
@@ -443,6 +560,8 @@
                  lineBreakMode:UILineBreakModeTailTruncation numberOfLines:6 next:nil]]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)photoStatusLabel {
   return
     [TTSolidFillStyle styleWithColor:[UIColor colorWithWhite:0 alpha:0.5] next:
@@ -452,6 +571,8 @@
                  shadowOffset:CGSizeMake(0, -1) next:nil]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)pageDot:(UIControlState)state {
   if (state == UIControlStateSelected) {
     return [self pageDotWithColor:[UIColor whiteColor]];
@@ -460,6 +581,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)launcherButton:(UIControlState)state {
   return
     [TTPartStyle styleWithName:@"image" style:TTSTYLESTATE(launcherButtonImage:, state) next:
@@ -468,6 +591,8 @@
                  shadowOffset:CGSizeZero next:nil]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)launcherButtonImage:(UIControlState)state {
   TTStyle* style =
     [TTBoxStyle styleWithMargin:UIEdgeInsetsMake(-7, 0, 11, 0) next:
@@ -484,6 +609,8 @@
   return style;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)launcherCloseButtonImage:(UIControlState)state {
   return
     [TTBoxStyle styleWithMargin:UIEdgeInsetsMake(-2, 0, 0, 0) next:
@@ -491,6 +618,8 @@
                   size:CGSizeMake(10,10) next:nil]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)launcherCloseButton:(UIControlState)state {
   return
     [TTShapeStyle styleWithShape:[TTRoundedRectangleShape shapeWithRadius:TT_ROUNDED] next:
@@ -503,10 +632,14 @@
     nil]]]]]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)launcherPageDot:(UIControlState)state {
   return [self pageDot:state];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)textBar {
   return
     [TTLinearGradientFillStyle styleWithColor1:RGBCOLOR(237, 239, 241)
@@ -516,6 +649,8 @@
                        next:nil]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)textBarFooter {
   return
     [TTLinearGradientFillStyle styleWithColor1:RGBCOLOR(206, 208, 212)
@@ -525,8 +660,10 @@
                        next:nil]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)textBarTextField {
-  return 
+  return
     [TTInsetStyle styleWithInset:UIEdgeInsetsMake(6, 0, 3, 6) next:
     [TTShapeStyle styleWithShape:[TTRoundedRectangleShape shapeWithRadius:12.5] next:
     [TTInsetStyle styleWithInset:UIEdgeInsetsMake(1, 0, 1, 0) next:
@@ -537,6 +674,8 @@
                         width:1 lightSource:270 next:nil]]]]]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)textBarPostButton:(UIControlState)state {
   UIColor* fillColor = state == UIControlStateHighlighted
                        ? RGBCOLOR(19, 61, 126)
@@ -544,7 +683,7 @@
   UIColor* textColor = state == UIControlStateDisabled
                        ? RGBACOLOR(255, 255, 255, 0.5)
                        : RGBCOLOR(255, 255, 255);
-  return 
+  return
     [TTShapeStyle styleWithShape:[TTRoundedRectangleShape shapeWithRadius:13] next:
     [TTInsetStyle styleWithInset:UIEdgeInsetsMake(2, 0, 1, 0) next:
     [TTShadowStyle styleWithColor:RGBACOLOR(255,255,255,0.5) blur:0 offset:CGSizeMake(0, 1) next:
@@ -561,58 +700,76 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // public colors
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)textColor {
   return [UIColor blackColor];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)highlightedTextColor {
   return [UIColor whiteColor];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)placeholderTextColor {
   return RGBCOLOR(180, 180, 180);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)timestampTextColor {
   return RGBCOLOR(36, 112, 216);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)linkTextColor {
   return RGBCOLOR(87, 107, 149);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)moreLinkTextColor {
   return RGBCOLOR(36, 112, 216);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)selectedTextColor {
   return [UIColor whiteColor];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)photoCaptionTextColor {
   return [UIColor whiteColor];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)navigationBarTintColor {
 	return RGBCOLOR(119, 140, 168);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)toolbarTintColor {
   return RGBCOLOR(109, 132, 162);
-}
-
-- (UIColor*)segmentedControlTintColor {
-	return RGBCOLOR(109, 132, 162);
 }
 
 - (UIColor*)searchBarTintColor {
   return RGBCOLOR(200, 200, 200);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)screenBackgroundColor {
   return [UIColor colorWithWhite:0 alpha:0.8];
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)backgroundColor {
   return [UIColor whiteColor];
 }
@@ -625,98 +782,146 @@
   return RGBCOLOR(99, 109, 125);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tableErrorTextColor {
   return RGBCOLOR(96, 103, 111);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tableSubTextColor {
   return RGBCOLOR(79, 89, 105);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tableTitleTextColor {
   return RGBCOLOR(99, 109, 125);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tableHeaderTextColor {
   return nil;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tableHeaderShadowColor {
   return nil;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tableHeaderTintColor {
   return nil;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tableSeparatorColor {
   return [UIColor colorWithWhite:0.9 alpha:1];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tablePlainBackgroundColor {
   return nil;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tableGroupedBackgroundColor {
   return [UIColor groupTableViewBackgroundColor];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)searchTableBackgroundColor {
   return RGBCOLOR(235, 235, 235);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)searchTableSeparatorColor {
   return [UIColor colorWithWhite:0.85 alpha:1];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)tableRefreshHeaderLastUpdatedFont {
   return [UIFont systemFontOfSize:12.0f];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)tableRefreshHeaderStatusFont {
   return [UIFont boldSystemFontOfSize:13.0f];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tableRefreshHeaderBackgroundColor {
   return RGBCOLOR(226, 231, 237);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tableRefreshHeaderTextColor {
   return RGBCOLOR(87, 108, 137);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tableRefreshHeaderTextShadowColor {
   return [UIColor colorWithWhite:0.9 alpha:1];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGSize)tableRefreshHeaderTextShadowOffset {
   return CGSizeMake(0.0f, 1.0f);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIImage*)tableRefreshHeaderArrowImage {
   return TTIMAGE(@"bundle://Three20.bundle/images/blueArrow.png");
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tabBarTintColor {
   return RGBCOLOR(119, 140, 168);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)tabTintColor {
   return RGBCOLOR(228, 230, 235);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)messageFieldTextColor {
   return [UIColor colorWithWhite:0.5 alpha:1];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)messageFieldSeparatorColor {
   return [UIColor colorWithWhite:0.7 alpha:1];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)thumbnailBackgroundColor {
   return [UIColor colorWithWhite:0.95 alpha:1];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)postButtonColor {
   return RGBCOLOR(117, 144, 181);
 }
@@ -724,70 +929,104 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // public fonts
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)font {
   return [UIFont systemFontOfSize:14];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)buttonFont {
   return [UIFont boldSystemFontOfSize:12];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)tableFont {
   return [UIFont boldSystemFontOfSize:17];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)tableSmallFont {
   return [UIFont boldSystemFontOfSize:15];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)tableTitleFont {
   return [UIFont boldSystemFontOfSize:13];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)tableTimestampFont {
   return [UIFont systemFontOfSize:13];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)tableButtonFont {
   return [UIFont boldSystemFontOfSize:13];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)tableSummaryFont {
   return [UIFont systemFontOfSize:17];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)tableHeaderPlainFont {
   return [UIFont boldSystemFontOfSize:16];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)tableHeaderGroupedFont {
   return [UIFont boldSystemFontOfSize:18];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)photoCaptionFont {
   return [UIFont boldSystemFontOfSize:12];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)messageFont {
   return [UIFont systemFontOfSize:15];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)errorTitleFont {
   return [UIFont boldSystemFontOfSize:18];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)errorSubtitleFont {
   return [UIFont boldSystemFontOfSize:12];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)activityLabelFont {
   return [UIFont systemFontOfSize:17];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIFont*)activityBannerFont {
   return [UIFont boldSystemFontOfSize:11];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UITableViewCellSelectionStyle)tableSelectionStyle {
   return UITableViewCellSelectionStyleBlue;
 }
@@ -795,6 +1034,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // private
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)toolbarButtonColorWithTintColor:(UIColor*)color forState:(UIControlState)state {
   if (state & UIControlStateHighlighted || state & UIControlStateSelected) {
     if (color.value < 0.2) {
@@ -813,6 +1054,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UIColor*)toolbarButtonTextColorForState:(UIControlState)state {
   if (state & UIControlStateDisabled) {
 	  return [UIColor colorWithWhite:1 alpha:0.4];
@@ -821,20 +1064,21 @@
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// public
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)selectionFillStyle:(TTStyle*)next {
   return [TTLinearGradientFillStyle styleWithColor1:RGBCOLOR(5,140,245)
                                     color2:RGBCOLOR(1,93,230) next:next];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)toolbarButtonForState:(UIControlState)state shape:(TTShape*)shape
             tintColor:(UIColor*)tintColor font:(UIFont*)font {
   UIColor* stateTintColor = [self toolbarButtonColorWithTintColor:tintColor forState:state];
   UIColor* stateTextColor = [self toolbarButtonTextColorForState:state];
 
-  return 
+  return
     [TTShapeStyle styleWithShape:shape next:
     [TTInsetStyle styleWithInset:UIEdgeInsetsMake(2, 0, 1, 0) next:
     [TTShadowStyle styleWithColor:RGBACOLOR(255,255,255,0.18) blur:0 offset:CGSizeMake(0, 1) next:
@@ -853,6 +1097,8 @@
                  shadowOffset:CGSizeMake(0, -1) next:nil]]]]]]]]]];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (TTStyle*)pageDotWithColor:(UIColor*)color {
   return
     [TTBoxStyle styleWithMargin:UIEdgeInsetsMake(0,0,0,10) padding:UIEdgeInsetsMake(6,6,0,0) next:

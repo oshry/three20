@@ -14,7 +14,10 @@
 // limitations under the License.
 //
 
-#import "Three20/TTURLRequest.h"
+#import <Foundation/Foundation.h>
+
+// Network
+#import "Three20/TTURLRequestCachePolicy.h"
 
 /**
  * TTModel describes the state of an object that can be loaded from a remote source.
@@ -31,36 +34,50 @@
 
 /**
  * Indicates that the data has been loaded.
+ *
+ * Default implementation returns YES.
  */
 - (BOOL)isLoaded;
 
 /**
  * Indicates that the data is in the process of loading.
+ *
+ * Default implementation returns NO.
  */
 - (BOOL)isLoading;
 
 /**
  * Indicates that the data is in the process of loading additional data.
+ *
+ * Default implementation returns NO.
  */
 - (BOOL)isLoadingMore;
 
 /**
  * Indicates that the model is of date and should be reloaded as soon as possible.
+ *
+ * Default implementation returns NO.
  */
 -(BOOL)isOutdated;
 
 /**
  * Loads the model.
+ *
+ * Default implementation does nothing.
  */
 - (void)load:(TTURLRequestCachePolicy)cachePolicy more:(BOOL)more;
 
 /**
  * Cancels a load that is in progress.
+ *
+ * Default implementation does nothing.
  */
 - (void)cancel;
 
 /**
  * Invalidates data stored in the cache or optionally erases it.
+ *
+ * Default implementation does nothing.
  */
 - (void)invalidate:(BOOL)erase;
 

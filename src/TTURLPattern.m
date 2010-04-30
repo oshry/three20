@@ -16,10 +16,13 @@
 
 #import "Three20/TTURLPattern.h"
 
+// UI (Private)
 #import "Three20/TTURLWildcard.h"
 #import "Three20/TTURLLiteral.h"
 
-#import "Three20/TTGlobalCore.h"
+// Core
+#import "Three20/TTCorePreprocessorMacros.h"
+#import "Three20/NSStringAdditions.h"
 
 #import <objc/runtime.h>
 
@@ -35,9 +38,33 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @private
- */
+- (id)init {
+  if (self = [super init]) {
+    _path = [[NSMutableArray alloc] init];
+  }
+  return self;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)dealloc {
+  TT_RELEASE_SAFELY(_URL);
+  TT_RELEASE_SAFELY(_scheme);
+  TT_RELEASE_SAFELY(_path);
+  TT_RELEASE_SAFELY(_query);
+  TT_RELEASE_SAFELY(_fragment);
+
+  [super dealloc];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Private
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id<TTURLPatternText>)parseText:(NSString*)text {
   NSInteger len = text.length;
   if (len >= 2
@@ -66,9 +93,6 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @private
- */
 - (void)parsePathComponent:(NSString*)value {
   id<TTURLPatternText> component = [self parseText:value];
   [_path addObject:component];
@@ -76,9 +100,6 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @private
- */
 - (void)parseParameter:(NSString*)name value:(NSString*)value {
   if (nil == _query) {
     _query = [[NSMutableDictionary alloc] init];
@@ -90,61 +111,18 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @private
- */
-- (void)setSelectorWithNames:(NSArray*)names {
-  NSString* selectorName = [[names componentsJoinedByString:@":"] stringByAppendingString:@":"];
-  SEL selector = NSSelectorFromString(selectorName);
-  [self setSelectorIfPossible:selector];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
-#pragma mark NSObject
+#pragma mark Public
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (id)init {
-  if (self = [super init]) {
-    _URL = nil;
-    _scheme = nil;
-    _path = [[NSMutableArray alloc] init];
-    _query = nil;
-    _fragment = nil;
-    _specificity = 0;
-    _selector = nil;
-  }
-  return self;
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  TT_RELEASE_SAFELY(_URL);
-  TT_RELEASE_SAFELY(_scheme);
-  TT_RELEASE_SAFELY(_path);
-  TT_RELEASE_SAFELY(_query);
-  TT_RELEASE_SAFELY(_fragment);
-  [super dealloc];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (Class)classForInvocation {
   return nil;
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (void)setSelectorIfPossible:(SEL)selector {
   Class cls = [self classForInvocation];
   if (nil == cls
@@ -156,9 +134,6 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (void)compileURL {
   NSURL* URL = [NSURL URLWithString:_URL];
   _scheme = [URL.scheme copy];

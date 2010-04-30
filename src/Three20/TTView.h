@@ -14,8 +14,10 @@
 // limitations under the License.
 //
 
-#import "Three20/TTStyle.h"
+// Style
+#import "Three20/TTStyleDelegate.h"
 
+@class TTStyle;
 @class TTLayout;
 
 /**
@@ -27,8 +29,8 @@
   TTLayout* _layout;
 }
 
-@property(nonatomic,retain) TTStyle*  style;
-@property(nonatomic,retain) TTLayout* layout;
+@property (nonatomic, retain) TTStyle*  style;
+@property (nonatomic, retain) TTLayout* layout;
 
 - (void)drawContent:(CGRect)rect;
 

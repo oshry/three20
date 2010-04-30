@@ -16,28 +16,73 @@
 
 #import "Three20/TTPhotoView.h"
 
-#import "Three20/TTGlobalCore.h"
-#import "Three20/TTGlobalCoreLocale.h"
+// UI
 #import "Three20/TTGlobalUI.h"
 #import "Three20/TTGlobalUINavigator.h"
-
+#import "Three20/TTPhoto.h"
+#import "Three20/TTPhotoSource.h"
 #import "Three20/TTLabel.h"
-#import "Three20/TTURLCache.h"
-#import "Three20/TTURLRequestQueue.h"
-#import "Three20/TTStyleSheet.h"
+#import "Three20/UIViewAdditions.h"
 
+// UI (private)
 #import "Three20/TTImageViewInternal.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+// Style
+#import "Three20/TTGlobalStyle.h"
+#import "Three20/TTStyleSheet.h"
 
-@implementation TTPhotoView
+// Network
+#import "Three20/TTURLCache.h"
+#import "Three20/TTURLRequestQueue.h"
 
-@synthesize photo = _photo, captionStyle = _captionStyle, hidesExtras = _hidesExtras,
-            hidesCaption = _hidesCaption;
+// Core
+#import "Three20/TTCorePreprocessorMacros.h"
+#import "Three20/TTGlobalCoreLocale.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// private
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+@implementation TTPhotoView
 
+@synthesize photo         = _photo;
+@synthesize captionStyle  = _captionStyle;
+@synthesize hidesExtras   = _hidesExtras;
+@synthesize hidesCaption  = _hidesCaption;
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (id)initWithFrame:(CGRect)frame {
+  if (self = [super initWithFrame:frame]) {
+    _photoVersion = TTPhotoVersionNone;
+    self.clipsToBounds = NO;
+  }
+
+  return self;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)dealloc {
+  [[TTURLRequestQueue mainQueue] cancelRequestsWithDelegate:self];
+  [super setDelegate:nil];
+  TT_RELEASE_SAFELY(_photo);
+  TT_RELEASE_SAFELY(_captionLabel);
+  TT_RELEASE_SAFELY(_captionStyle);
+  TT_RELEASE_SAFELY(_statusSpinner);
+  TT_RELEASE_SAFELY(_statusLabel);
+
+  [super dealloc];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Private
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)loadVersion:(TTPhotoVersion)version fromNetwork:(BOOL)fromNetwork {
   NSString* URL = [_photo URLForVersion:version];
   if (URL) {
@@ -48,9 +93,12 @@
       return YES;
     }
   }
+
   return NO;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)showCaption:(NSString*)caption {
   if (caption) {
     if (!_captionLabel) {
@@ -66,66 +114,49 @@
   [self setNeedsLayout];
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// NSObject
-
-- (id)initWithFrame:(CGRect)frame {
-  if (self = [super initWithFrame:frame]) {
-    _photo = nil;
-    _statusSpinner = nil;
-    _statusLabel = nil;
-    _captionStyle = nil;
-    _captionLabel = nil;
-    _photoVersion = TTPhotoVersionNone;
-    _hidesExtras = NO;
-    _hidesCaption = NO;
-    
-    self.clipsToBounds = NO;
-  }
-  return self;
-}
-
-- (void)dealloc {
-  [[TTURLRequestQueue mainQueue] cancelRequestsWithDelegate:self];
-  [super setDelegate:nil];
-  TT_RELEASE_SAFELY(_photo);
-  TT_RELEASE_SAFELY(_captionLabel);
-  TT_RELEASE_SAFELY(_captionStyle);
-  TT_RELEASE_SAFELY(_statusSpinner);
-  TT_RELEASE_SAFELY(_statusLabel);
-  [super dealloc];
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
-// UIImageView
+#pragma mark -
+#pragma mark UIImageView
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setImage:(UIImage*)image {
   if (image != _defaultImage || !_photo || self.urlPath != [_photo URLForVersion:TTPhotoVersionLarge]) {
     if (image == _defaultImage) {
       self.contentMode = UIViewContentModeCenter;
+
     } else {
       self.contentMode = UIViewContentModeScaleAspectFill;
     }
+
     [super setImage:image];
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)imageViewDidStartLoad {
   [self showProgress:0];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)imageViewDidLoadImage:(UIImage*)image {
   if (!_photo.photoSource.isLoading) {
     [self showProgress:-1];
     [self showStatus:nil];
   }
-  
+
   if (!_photo.size.width) {
     _photo.size = image.size;
     [self.superview setNeedsLayout];
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)imageViewDidFailLoadWithError:(NSError*)error {
   [self showProgress:0];
   if (error) {
@@ -133,9 +164,14 @@
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// UIView
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UIView
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutSubviews {
   CGRect screenBounds = TTScreenBounds();
   CGFloat width = self.width;
@@ -147,31 +183,33 @@
   // Since the photo view is constrained to the size of the image, but we want to position
   // the status views relative to the screen, offset by the difference
   CGFloat screenOffset = -floor(screenBounds.size.height/2 - height/2);
-  
+
   // Vertically center in the space between the bottom of the image and the bottom of the screen
   CGFloat imageBottom = screenBounds.size.height/2 + self.defaultImage.size.height/2;
   CGFloat textWidth = screenBounds.size.width - (marginLeft+marginRight);
-  
+
   if (_statusLabel.text.length) {
     CGSize statusSize = [_statusLabel sizeThatFits:CGSizeMake(textWidth, 0)];
-    _statusLabel.frame = 
-        CGRectMake(marginLeft + (cx - screenBounds.size.width/2), 
+    _statusLabel.frame =
+        CGRectMake(marginLeft + (cx - screenBounds.size.width/2),
                    cy + floor(screenBounds.size.height/2 - (statusSize.height+marginBottom)),
                    textWidth, statusSize.height);
+
   } else {
     _statusLabel.frame = CGRectZero;
   }
-  
+
   if (_captionLabel.text.length) {
     CGSize captionSize = [_captionLabel sizeThatFits:CGSizeMake(textWidth, 0)];
-    _captionLabel.frame = CGRectMake(marginLeft + (cx - screenBounds.size.width/2), 
+    _captionLabel.frame = CGRectMake(marginLeft + (cx - screenBounds.size.width/2),
                                      cy + floor(screenBounds.size.height/2
                                                 - (captionSize.height+marginBottom)),
                                      textWidth, captionSize.height);
+
   } else {
     _captionLabel.frame = CGRectZero;
   }
-  
+
   CGFloat spinnerTop = _captionLabel.height
     ? _captionLabel.top - floor(_statusSpinner.height + _statusSpinner.height/2)
     : screenOffset + imageBottom + floor(_statusSpinner.height/2);
@@ -182,27 +220,35 @@
 
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-// public
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Public
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setPhoto:(id<TTPhoto>)photo {
   if (!photo || photo != _photo) {
     [_photo release];
     _photo = [photo retain];
     _photoVersion = TTPhotoVersionNone;
-    
+
     self.urlPath = nil;
-    
+
     [self showCaption:photo.caption];
   }
-  
+
   if (!_photo || _photo.photoSource.isLoading) {
     [self showProgress:0];
+
   } else {
     [self showStatus:nil];
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setHidesExtras:(BOOL)hidesExtras {
   if (!hidesExtras) {
     [UIView beginAnimations:nil context:nil];
@@ -217,11 +263,15 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setHidesCaption:(BOOL)hidesCaption {
   _hidesCaption = hidesCaption;
   _captionLabel.alpha = hidesCaption ? 0 : 1;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)loadPreview:(BOOL)fromNetwork {
   if (![self loadVersion:TTPhotoVersionLarge fromNetwork:NO]) {
     if (![self loadVersion:TTPhotoVersionSmall fromNetwork:NO]) {
@@ -230,10 +280,12 @@
       }
     }
   }
-  
+
   return YES;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)loadImage {
   if (_photo) {
     _photoVersion = TTPhotoVersionLarge;
@@ -241,6 +293,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)showProgress:(CGFloat)progress {
   if (progress >= 0) {
     if (!_statusSpinner) {
@@ -253,6 +307,7 @@
     _statusSpinner.hidden = NO;
     [self showStatus:nil];
     [self setNeedsLayout];
+
   } else {
     [_statusSpinner stopAnimating];
     _statusSpinner.hidden = YES;
@@ -260,6 +315,8 @@
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)showStatus:(NSString*)text {
   if (text) {
     if (!_statusLabel) {
@@ -268,10 +325,12 @@
       _statusLabel.opaque = NO;
       [self addSubview:_statusLabel];
     }
+
     _statusLabel.hidden = NO;
     [self showProgress:-1];
     [self setNeedsLayout];
     _captionLabel.hidden = YES;
+
   } else {
     _statusLabel.hidden = YES;
     _captionLabel.hidden = NO;
@@ -279,5 +338,6 @@
 
   _statusLabel.text = text;
 }
+
 
 @end

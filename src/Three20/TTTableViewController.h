@@ -14,63 +14,79 @@
 // limitations under the License.
 //
 
+// UI
 #import "Three20/TTModelViewController.h"
 
 @protocol TTTableViewDataSource;
 @class TTActivityLabel;
 
 @interface TTTableViewController : TTModelViewController {
-  UITableView* _tableView;
-  UIView* _tableBannerView;
-  UIView* _tableOverlayView;
-  UIView* _loadingView;
-  UIView* _errorView;
-  UIView* _emptyView;
-  UIView* _menuView;
-  UITableViewCell* _menuCell;
-  id<TTTableViewDataSource> _dataSource;
-  id<UITableViewDelegate> _tableDelegate;
-  NSTimer* _bannerTimer;
-  UITableViewStyle _tableViewStyle;
-  UIInterfaceOrientation _lastInterfaceOrientation;
+  UITableView*  _tableView;
+  UIView*       _tableBannerView;
+  UIView*       _tableOverlayView;
+  UIView*       _loadingView;
+  UIView*       _errorView;
+  UIView*       _emptyView;
+
+  NSTimer*      _bannerTimer;
+
+  UIView*           _menuView;
+  UITableViewCell*  _menuCell;
+
+  UITableViewStyle        _tableViewStyle;
+
+  UIInterfaceOrientation  _lastInterfaceOrientation;
+
   BOOL _variableHeightRows;
+  BOOL _showTableShadows;
+
+  id<TTTableViewDataSource> _dataSource;
+  id<UITableViewDelegate>   _tableDelegate;
 }
 
-@property(nonatomic,retain) UITableView* tableView;
+@property (nonatomic, retain) UITableView* tableView;
 
 /**
  * A view that is displayed as a banner at the bottom of the table view.
  */
-@property(nonatomic,retain) UIView* tableBannerView;
+@property (nonatomic, retain) UIView* tableBannerView;
 
 /**
  * A view that is displayed over the table view.
  */
-@property(nonatomic,retain) UIView* tableOverlayView;
+@property (nonatomic, retain) UIView* tableOverlayView;
 
-@property(nonatomic,retain) UIView* loadingView;
-@property(nonatomic,retain) UIView* errorView;
-@property(nonatomic,retain) UIView* emptyView;
+@property (nonatomic, retain) UIView* loadingView;
+@property (nonatomic, retain) UIView* errorView;
+@property (nonatomic, retain) UIView* emptyView;
 
-@property(nonatomic,readonly) UIView* menuView;
+@property (nonatomic, readonly) UIView* menuView;
 
-/** 
+/**
  * The data source used to populate the table view.
  *
  * Setting dataSource has the side effect of also setting model to the value of the
  * dataSource's model property.
  */
-@property(nonatomic,retain) id<TTTableViewDataSource> dataSource;
+@property (nonatomic, retain) id<TTTableViewDataSource> dataSource;
 
 /**
  * The style of the table view.
  */
-@property(nonatomic) UITableViewStyle tableViewStyle;
+@property (nonatomic) UITableViewStyle tableViewStyle;
 
-/** 
+/**
  * Indicates if the table should support non-fixed row heights.
  */
-@property(nonatomic) BOOL variableHeightRows;
+@property (nonatomic) BOOL variableHeightRows;
+
+/**
+ * When enabled, draws gutter shadows above the first table item and below the last table item.
+ *
+ * Known issues: When there aren't enough cell items to fill the screen, the table view draws
+ * empty cells for the remaining space. This causes the bottom shadow to appear out of place.
+ */
+@property (nonatomic) BOOL showTableShadows;
 
 /**
  * Initializes and returns a controller having the given style.

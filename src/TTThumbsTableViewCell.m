@@ -16,26 +16,63 @@
 
 #import "Three20/TTThumbsTableViewCell.h"
 
-#import "Three20/TTGlobalCore.h"
-
+// UI
 #import "Three20/TTThumbView.h"
+#import "Three20/TTThumbsTableViewCellDelegate.h"
+#import "Three20/TTPhotoVersion.h"
 #import "Three20/TTPhotoSource.h"
+#import "Three20/TTPhoto.h"
+
+// Core
+#import "Three20/TTCorePreprocessorMacros.h"
+
+static const CGFloat kSpacing = 4;
+static const CGFloat kDefaultThumbSize = 75;
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-static CGFloat kSpacing = 4;
-static CGFloat kDefaultThumbSize = 75;
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
+///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation TTThumbsTableViewCell
 
-@synthesize delegate = _delegate, photo = _photo, thumbSize = _thumbSize,
-           thumbOrigin = _thumbOrigin, columnCount = _columnCount;
+@synthesize photo       = _photo;
+@synthesize thumbSize   = _thumbSize;
+@synthesize thumbOrigin = _thumbOrigin;
+@synthesize columnCount = _columnCount;
+@synthesize delegate    = _delegate;
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// private
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString*)identifier {
+  if (self = [super initWithStyle:style reuseIdentifier:identifier]) {
+    _thumbViews = [[NSMutableArray alloc] init];
+    _thumbSize = kDefaultThumbSize;
+    _thumbOrigin = CGPointMake(kSpacing, 0);
 
+    self.accessoryType = UITableViewCellAccessoryNone;
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
+  }
+
+  return self;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)dealloc {
+  TT_RELEASE_SAFELY(_photo);
+  TT_RELEASE_SAFELY(_thumbViews);
+
+  [super dealloc];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Private
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)assignPhotoAtIndex:(int)index toView:(TTThumbView*)thumbView {
   id<TTPhoto> photo = [_photo.photoSource photoAtIndex:index];
   if (photo) {
@@ -47,14 +84,18 @@ static CGFloat kDefaultThumbSize = 75;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)thumbTouched:(TTThumbView*)thumbView {
   NSUInteger thumbViewIndex = [_thumbViews indexOfObject:thumbView];
   NSInteger index = _photo.index + thumbViewIndex;
-  
+
   id<TTPhoto> photo = [_photo.photoSource photoAtIndex:index];
   [_delegate thumbsTableViewCell:self didSelectPhoto:photo];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutThumbViews {
   CGRect thumbFrame = CGRectMake(self.thumbOrigin.x, self.thumbOrigin.y,
                                  self.thumbSize, self.thumbSize);
@@ -65,62 +106,59 @@ static CGFloat kDefaultThumbSize = 75;
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// NSObject
-
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString*)identifier {
-  if (self = [super initWithStyle:style reuseIdentifier:identifier]) {
-    _photo = nil;
-    _delegate = nil;
-    _thumbViews = [[NSMutableArray alloc] init];
-    _thumbSize = kDefaultThumbSize;
-    _thumbOrigin = CGPointMake(kSpacing, 0);
-    _columnCount = 0;
-        
-    self.accessoryType = UITableViewCellAccessoryNone;
-    self.selectionStyle = UITableViewCellSelectionStyleNone;
-  }
-  return self;
-}
-
-- (void)dealloc {
-  TT_RELEASE_SAFELY(_photo);
-  TT_RELEASE_SAFELY(_thumbViews);
-  [super dealloc];
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// UIView
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UIView
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutSubviews {
   [super layoutSubviews];
   [self layoutThumbViews];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// TTTableViewCell
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark TTTableViewCell
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)object {
   return _photo;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setObject:(id)object {
   [self setPhoto:object];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// public
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Public
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setThumbSize:(CGFloat)thumbSize {
   _thumbSize = thumbSize;
   [self setNeedsLayout];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setThumbOrigin:(CGPoint)thumbOrigin {
   _thumbOrigin = thumbOrigin;
-  [self setNeedsLayout];  
+  [self setNeedsLayout];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setColumnCount:(NSInteger)columnCount {
   if (_columnCount != columnCount) {
     if (columnCount > _columnCount) {
@@ -129,9 +167,9 @@ static CGFloat kDefaultThumbSize = 75;
       }
       [_thumbViews removeAllObjects];
     }
-    
+
     _columnCount = columnCount;
-    
+
     for (NSInteger i = _thumbViews.count; i < _columnCount; ++i) {
       TTThumbView* thumbView = [[[TTThumbView alloc] init] autorelease];
       [thumbView addTarget:self action:@selector(thumbTouched:)
@@ -145,6 +183,8 @@ static CGFloat kDefaultThumbSize = 75;
   }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setPhoto:(id<TTPhoto>)photo {
   if (_photo != photo) {
     [_photo release];
@@ -156,19 +196,22 @@ static CGFloat kDefaultThumbSize = 75;
       }
       return;
     }
-    
+
     NSInteger i = 0;
     for (TTThumbView* thumbView in _thumbViews) {
       [self assignPhotoAtIndex:_photo.index+i toView:thumbView];
       ++i;
     }
-  }  
+  }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)suspendLoading:(BOOL)suspended {
   for (TTThumbView* thumbView in _thumbViews) {
     [thumbView suspendLoadingImages:suspended];
   }
 }
+
 
 @end

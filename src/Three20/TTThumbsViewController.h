@@ -14,53 +14,27 @@
 // limitations under the License.
 //
 
-#import "Three20/TTTableViewDataSource.h"
+// UI
 #import "Three20/TTTableViewController.h"
-#import "Three20/TTThumbsTableViewCell.h"
+#import "Three20/TTThumbsTableViewCellDelegate.h"
 
-@protocol TTThumbsViewControllerDelegate, TTPhotoSource;
+@protocol TTThumbsViewControllerDelegate;
+@protocol TTPhotoSource;
+@protocol TTTableViewDataSource;
 @class TTPhotoViewController;
 
 @interface TTThumbsViewController : TTTableViewController <TTThumbsTableViewCellDelegate> {
-  id<TTThumbsViewControllerDelegate> _delegate;
-  id<TTPhotoSource> _photoSource;
+  id<TTPhotoSource>                   _photoSource;
+  id<TTThumbsViewControllerDelegate>  _delegate;
 }
 
-@property(nonatomic,assign) id<TTThumbsViewControllerDelegate> delegate;
-@property(nonatomic,retain) id<TTPhotoSource> photoSource;
+@property (nonatomic, retain) id<TTPhotoSource>                   photoSource;
+@property (nonatomic, assign) id<TTThumbsViewControllerDelegate>  delegate;
 
 - (id)initWithDelegate:(id<TTThumbsViewControllerDelegate>)delegate;
 - (id)initWithQuery:(NSDictionary*)query;
 
 - (TTPhotoViewController*)createPhotoViewController;
 - (id<TTTableViewDataSource>)createDataSource;
-
-@end
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-@interface TTThumbsDataSource : TTTableViewDataSource {
-  id<TTThumbsTableViewCellDelegate> _delegate;
-  id<TTPhotoSource> _photoSource;
-}
-
-@property(nonatomic,assign) id<TTThumbsTableViewCellDelegate> delegate;
-@property(nonatomic,retain) id<TTPhotoSource> photoSource;
-
-- (id)initWithPhotoSource:(id<TTPhotoSource>)photoSource
-      delegate:(id<TTThumbsTableViewCellDelegate>)delegate;
-
-@end
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-@protocol TTThumbsViewControllerDelegate <NSObject>
-
-- (void)thumbsViewController:(TTThumbsViewController*)controller didSelectPhoto:(id<TTPhoto>)photo;
-
-@optional
-
-- (BOOL)thumbsViewController:(TTThumbsViewController*)controller
-        shouldNavigateToPhoto:(id<TTPhoto>)photo;
 
 @end

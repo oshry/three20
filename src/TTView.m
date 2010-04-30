@@ -16,9 +16,13 @@
 
 #import "Three20/TTView.h"
 
-#import "Three20/TTGlobalCore.h"
-
+// Style
+#import "Three20/TTStyleContext.h"
+#import "Three20/TTStyle.h"
 #import "Three20/TTLayout.h"
+
+// Core
+#import "Three20/TTCorePreprocessorMacros.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,16 +35,11 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark NSObject
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
   if (self = [super initWithFrame:frame]) {
     self.contentMode = UIViewContentModeRedraw;
   }
+
   return self;
 }
 
@@ -49,6 +48,7 @@
 - (void)dealloc {
   TT_RELEASE_SAFELY(_style);
   TT_RELEASE_SAFELY(_layout);
+
   [super dealloc];
 }
 
@@ -102,9 +102,9 @@
   if (style != _style) {
     [_style release];
     _style = [style retain];
-    
+
     [self setNeedsDisplay];
-  }  
+  }
 }
 
 

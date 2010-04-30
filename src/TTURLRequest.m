@@ -16,23 +16,26 @@
 
 #import "Three20/TTURLRequest.h"
 
-#import "Three20/TTGlobalCore.h"
-#import "Three20/TTDebugFlags.h"
-
+// Network
+#import "Three20/TTGlobalNetwork.h"
 #import "Three20/TTURLResponse.h"
 #import "Three20/TTURLRequestQueue.h"
 
-#import <CommonCrypto/CommonDigest.h>
+// Core
+#import "Three20/TTGlobalCore.h"
+#import "Three20/TTDebug.h"
+#import "Three20/TTDebugFlags.h"
+#import "Three20/NSStringAdditions.h"
 
 static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation TTURLRequest
 
-@synthesize URL         = _URL;
+@synthesize urlPath     = _urlPath;
 @synthesize httpMethod  = _httpMethod;
 @synthesize httpBody    = _httpBody;
 @synthesize parameters  = _parameters;
@@ -62,22 +65,22 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 @synthesize delegates             = _delegates;
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 + (TTURLRequest*)request {
   return [[[TTURLRequest alloc] init] autorelease];
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 + (TTURLRequest*)requestWithURL:(NSString*)URL delegate:(id /*<TTURLRequestDelegate>*/)delegate {
   return [[[TTURLRequest alloc] initWithURL:URL delegate:delegate] autorelease];
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithURL:(NSString*)URL delegate:(id /*<TTURLRequestDelegate>*/)delegate {
   if (self = [self init]) {
-    _URL = [URL retain];
+    _urlPath = [URL retain];
     if (nil != delegate) {
       [_delegates addObject:delegate];
     }
@@ -86,27 +89,22 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
   if (self = [super init]) {
     _delegates = TTCreateNonRetainingArray();
     _cachePolicy = TTURLRequestCachePolicyDefault;
     _cacheExpirationAge = TT_DEFAULT_CACHE_EXPIRATION_AGE;
-    _isLoading = NO;
     _shouldHandleCookies = YES;
-    _totalBytesLoaded = 0;
-    _totalBytesExpected = 0;
-    _respondedFromCache = NO;
-    _filterPasswordLogging = NO;
     _charsetForMultipart = NSUTF8StringEncoding;
   }
   return self;
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
-  TT_RELEASE_SAFELY(_URL);
+  TT_RELEASE_SAFELY(_urlPath);
   TT_RELEASE_SAFELY(_httpMethod);
   TT_RELEASE_SAFELY(_response);
   TT_RELEASE_SAFELY(_httpBody);
@@ -118,35 +116,22 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
   TT_RELEASE_SAFELY(_timestamp);
   TT_RELEASE_SAFELY(_files);
   TT_RELEASE_SAFELY(_delegates);
+
   [super dealloc];
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)description {
-  return [NSString stringWithFormat:@"<TTURLRequest %@>", _URL];
+  return [NSString stringWithFormat:@"<TTURLRequest %@>", _urlPath];
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-- (NSString *)md5HexDigest:(NSString*)input {
-  const char* str = [input UTF8String];
-  unsigned char result[CC_MD5_DIGEST_LENGTH];
-  CC_MD5(str, strlen(str), result);
-
-  return [NSString stringWithFormat:
-    @"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
-    result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7],
-    result[8], result[9], result[10], result[11], result[12], result[13], result[14], result[15]
-  ];
-}
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)generateCacheKey {
   if ([_httpMethod isEqualToString:@"POST"]
       || [_httpMethod isEqualToString:@"PUT"]) {
-    NSMutableString* joined = [[[NSMutableString alloc] initWithString:self.URL] autorelease];
+    NSMutableString* joined = [[[NSMutableString alloc] initWithString:self.urlPath] autorelease];
     NSEnumerator* e = [_parameters keyEnumerator];
     for (id key; key = [e nextObject]; ) {
       [joined appendString:key];
@@ -157,17 +142,17 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
       }
     }
 
-    return [self md5HexDigest:joined];
+    return [joined md5Hash];
   } else {
-    return [self md5HexDigest:self.URL];
+    return [self.urlPath md5Hash];
   }
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSData*)generatePostBody {
-  NSMutableData *body = [NSMutableData data];
-  NSString *beginLine = [NSString stringWithFormat:@"\r\n--%@\r\n", kStringBoundary];
+  NSMutableData* body = [NSMutableData data];
+  NSString* beginLine = [NSString stringWithFormat:@"\r\n--%@\r\n", kStringBoundary];
 
   [body appendData:[[NSString stringWithFormat:@"--%@\r\n", kStringBoundary]
     dataUsingEncoding:NSUTF8StringEncoding]];
@@ -237,7 +222,7 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSMutableDictionary*)parameters {
   if (!_parameters) {
     _parameters = [[NSMutableDictionary alloc] init];
@@ -246,7 +231,7 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSData*)httpBody {
   if (_httpBody) {
     return _httpBody;
@@ -259,7 +244,7 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)contentType {
   if (_contentType) {
     return _contentType;
@@ -272,7 +257,7 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)cacheKey {
   if (!_cacheKey) {
     _cacheKey = [[self generateCacheKey] retain];
@@ -281,8 +266,8 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field {
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)setValue:(NSString*)value forHTTPHeaderField:(NSString*)field {
   if (!_headers) {
     _headers = [[NSMutableDictionary alloc] init];
   }
@@ -290,7 +275,7 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addFile:(NSData*)data mimeType:(NSString*)mimeType fileName:(NSString*)fileName {
   if (!_files) {
     _files = [[NSMutableArray alloc] init];
@@ -302,16 +287,16 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)send {
   if (_parameters) {
     // Don't log passwords. Save now, restore after logging
-    NSString *password = [_parameters objectForKey:@"password"];
+    NSString* password = [_parameters objectForKey:@"password"];
     if (_filterPasswordLogging && password) {
       [_parameters setObject:@"[FILTERED]" forKey:@"password"];
     }
 
-    TTDCONDITIONLOG(TTDFLAG_URLREQUEST, @"SEND %@ %@", self.URL, self.parameters);
+    TTDCONDITIONLOG(TTDFLAG_URLREQUEST, @"SEND %@ %@", self.urlPath, self.parameters);
 
     if (password) {
       [_parameters setObject:password forKey:@"password"];
@@ -321,22 +306,42 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)sendSynchronously {
   return [[TTURLRequestQueue mainQueue] sendSynchronousRequest:self];
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)cancel {
   [[TTURLRequestQueue mainQueue] cancelRequest:self];
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSURLRequest*)createNSURLRequest {
   return [[TTURLRequestQueue mainQueue] createNSURLRequest:self URL:nil];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Properties
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Deprecated
+- (void)setURL:(NSMutableString*)urlPath {
+  NSMutableString* aUrlPath = [urlPath copy];
+  [_urlPath release];
+  _urlPath = aUrlPath;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Deprecated
+- (NSString*)URL {
+  return _urlPath;
+}
 
 @end

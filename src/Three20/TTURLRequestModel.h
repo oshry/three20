@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+// Network
 #import "Three20/TTModel.h"
 #import "Three20/TTURLRequestDelegate.h"
 
@@ -25,15 +26,28 @@
  */
 @interface TTURLRequestModel : TTModel <TTURLRequestDelegate> {
   TTURLRequest* _loadingRequest;
+
   NSDate*       _loadedTime;
   NSString*     _cacheKey;
+
   BOOL          _isLoadingMore;
   BOOL          _hasNoMore;
 }
 
+/**
+ * Valid upon completion of the URL request. Represents the timestamp of the completed request.
+ */
 @property (nonatomic, retain) NSDate*   loadedTime;
+
+/**
+ * Valid upon completion of the URL request. Represents the request's cache key.
+ */
 @property (nonatomic, copy)   NSString* cacheKey;
-@property (nonatomic)         BOOL      hasNoMore;
+
+/**
+ * Not used internally, but intended for book-keeping purposes when making requests.
+ */
+@property (nonatomic) BOOL hasNoMore;
 
 /**
  * Resets the model to its original state before any data was loaded.

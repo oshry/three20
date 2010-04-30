@@ -16,17 +16,34 @@
 
 #import "Three20/TTNavigator.h"
 
-#import "Three20/TTGlobalUI.h"
+// UI
 #import "Three20/TTGlobalUINavigator.h"
-#import "Three20/TTDebugFlags.h"
+#import "Three20/TTNavigatorDelegate.h"
+#import "Three20/UIViewControllerAdditions.h"
 
+// - Controllers
+#import "Three20/TTPopupViewController.h"
+#import "Three20/TTSearchDisplayController.h"
+#import "Three20/TTTableViewController.h"
+
+// UI (private)
+#import "Three20/TTNavigatorWindow.h"
+
+// Network
 #import "Three20/TTURLAction.h"
 #import "Three20/TTURLMap.h"
 #import "Three20/TTURLNavigatorPattern.h"
 
-#import "Three20/TTPopupViewController.h"
-#import "Three20/TTSearchDisplayController.h"
-#import "Three20/TTTableViewController.h"
+// Core
+#import "Three20/TTGlobalCore.h"
+#import "Three20/TTCorePreprocessorMacros.h"
+#import "Three20/TTDebug.h"
+#import "Three20/TTDebugFlags.h"
+#import "Three20/NSDateAdditions.h"
+
+static NSString* kNavigatorHistoryKey           = @"TTNavigatorHistory";
+static NSString* kNavigatorHistoryTimeKey       = @"TTNavigatorHistoryTime";
+static NSString* kNavigatorHistoryImportantKey  = @"TTNavigatorHistoryImportant";
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,30 +52,6 @@ UIViewController* TTOpenURL(NSString* URL) {
     [[TTURLAction actionWithURLPath:URL]
                       applyAnimated:YES]];
 }
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-@interface TTNavigatorWindow : UIWindow
-@end
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-@implementation TTNavigatorWindow
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)motionBegan:(UIEventSubtype)motion withEvent:(UIEvent *)event {
-  if (event.type == UIEventSubtypeMotionShake && [TTNavigator navigator].supportsShakeToReload) {
-    [[TTNavigator navigator] reload];
-  }
-}
-
-
-@end
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +77,49 @@ UIViewController* TTOpenURL(NSString* URL) {
   }
   return navigator;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (id)init {
+  if (self = [super init]) {
+    _URLMap = [[TTURLMap alloc] init];
+    _persistenceMode = TTNavigatorPersistenceModeNone;
+
+    // SwapMethods a new dealloc for UIViewController so it notifies us when it's going away.
+    // We need to remove dying controllers from our binding cache.
+    TTSwapMethods([UIViewController class], @selector(dealloc), @selector(ttdealloc));
+
+    TTSwapMethods([UINavigationController class], @selector(popViewControllerAnimated:),
+                  @selector(popViewControllerAnimated2:));
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(applicationWillTerminateNotification:)
+                                                 name:UIApplicationWillTerminateNotification
+                                               object:nil];
+  }
+  return self;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)dealloc {
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:UIApplicationWillTerminateNotification
+                                                object:nil];
+  _delegate = nil;
+  TT_RELEASE_SAFELY(_window);
+  TT_RELEASE_SAFELY(_rootViewController);
+  TT_RELEASE_SAFELY(_delayedControllers);
+  TT_RELEASE_SAFELY(_URLMap);
+
+  [super dealloc];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Private
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,9 +179,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @private
- */
 - (UIViewController*)frontViewController {
   UINavigationController* navController = self.frontNavigationController;
   if (navController) {
@@ -157,9 +190,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @private
- */
 - (void)setRootViewController:(UIViewController*)controller {
   if (controller != _rootViewController) {
     [_rootViewController release];
@@ -170,9 +200,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @private
- */
 - (UIViewController*)parentForController: (UIViewController*)controller
                            parentURLPath: (NSString*)parentURLPath {
   if (controller == _rootViewController) {
@@ -303,9 +330,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @private
- */
 - (BOOL)presentController: (UIViewController*)controller
             parentURLPath: (NSString*)parentURLPath
               withPattern: (TTURLNavigatorPattern*)pattern
@@ -342,9 +366,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @private
- */
 - (UIViewController*)openURLAction:(TTURLAction*)action {
   if (nil == action || nil == action.urlPath) {
     return nil;
@@ -442,49 +463,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
-#pragma mark NSObject
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (id)init {
-  if (self = [super init]) {
-    _URLMap = [[TTURLMap alloc] init];
-    _persistenceMode = TTNavigatorPersistenceModeNone;
-
-    // SwapMethods a new dealloc for UIViewController so it notifies us when it's going away.
-    // We need to remove dying controllers from our binding cache.
-    TTSwapMethods([UIViewController class], @selector(dealloc), @selector(ttdealloc));
-
-    TTSwapMethods([UINavigationController class], @selector(popViewControllerAnimated:),
-              @selector(popViewControllerAnimated2:));
-
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                          selector:@selector(applicationWillTerminateNotification:)
-                                          name:UIApplicationWillTerminateNotification
-                                          object:nil];
-  }
-  return self;
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  [[NSNotificationCenter defaultCenter] removeObserver:self
-                                        name:UIApplicationWillTerminateNotification
-                                        object:nil];
-  _delegate = nil;
-  TT_RELEASE_SAFELY(_window);
-  TT_RELEASE_SAFELY(_rootViewController);
-  TT_RELEASE_SAFELY(_delayedControllers);
-  TT_RELEASE_SAFELY(_URLMap);
-
-  [super dealloc];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
 #pragma mark NSNotifications
 
 
@@ -499,13 +477,10 @@ UIViewController* TTOpenURL(NSString* URL) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
-#pragma mark Public methods
+#pragma mark Public
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (UIWindow*)window {
   if (nil == _window) {
     UIWindow* keyWindow = [UIApplication sharedApplication].keyWindow;
@@ -522,9 +497,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (UIViewController*)visibleViewController {
   UIViewController* controller = _rootViewController;
   while (controller) {
@@ -549,9 +521,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (UIViewController*)topViewController {
   UIViewController* controller = _rootViewController;
   while (controller) {
@@ -577,18 +546,12 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (NSString*)URL {
   return self.topViewController.navigatorURL;
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (void)setURL:(NSString*)URLPath {
   [self openURLAction:[[TTURLAction actionWithURLPath: URLPath]
                                         applyAnimated: YES]];
@@ -596,110 +559,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
-- (UIViewController*)openURL: (NSString*)URL
-                    animated: (BOOL)animated {
-  return [self openURLAction:[[TTURLAction actionWithURLPath: URL]
-                                               applyAnimated: animated]];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
-- (UIViewController*)openURL: (NSString*)URL
-                    animated: (BOOL)animated
-                  transition: (UIViewAnimationTransition)transition {
-  return [self openURLAction:[[[TTURLAction actionWithURLPath: URL]
-                                                applyAnimated: animated]
-                                              applyTransition: transition]];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
-- (UIViewController*)openURL: (NSString*)URL
-                      parent: (NSString*)parentURL
-                    animated: (BOOL)animated {
-  return [self openURLAction:[[[TTURLAction actionWithURLPath: URL]
-                                           applyParentURLPath: parentURL]
-                                                applyAnimated: animated]];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
-- (UIViewController*)openURL: (NSString*)URL
-                       query: (NSDictionary*)query
-                    animated: (BOOL)animated {
-  return [self openURLAction:[[[TTURLAction actionWithURLPath: URL]
-                                                   applyQuery: query]
-                                                applyAnimated: animated]];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
-- (UIViewController*)openURL: (NSString*)URL
-                      parent: (NSString*)parentURL
-                       query: (NSDictionary*)query
-                    animated: (BOOL)animated {
-  return [self openURLAction:[[[[TTURLAction actionWithURLPath: URL]
-                                            applyParentURLPath: parentURL]
-                                                    applyQuery: query]
-                                                 applyAnimated: animated]];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
-- (UIViewController*)openURL: (NSString*)URL
-                      parent: (NSString*)parentURL
-                       query: (NSDictionary*)query
-                    animated: (BOOL)animated
-                  transition: (UIViewAnimationTransition)transition {
-  return [self openURLAction:[[[[[TTURLAction actionWithURLPath: URL]
-                                             applyParentURLPath: parentURL]
-                                                     applyQuery: query]
-                                                  applyAnimated: animated]
-                                                applyTransition: transition]];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
-- (UIViewController*)openURL: (NSString*)URL
-                      parent: (NSString*)parentURL
-                       query: (NSDictionary*)query
-                    animated: (BOOL)animated
-                  transition: (UIViewAnimationTransition)transition
-                   withDelay: (BOOL)withDelay {
-  return [self openURLAction:[[[[[[TTURLAction actionWithURLPath: URL]
-                                              applyParentURLPath: parentURL]
-                                                      applyQuery: query]
-                                                   applyAnimated: animated]
-                                                 applyTransition: transition]
-                                                  applyWithDelay: withDelay]];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (UIViewController*)openURLs:(NSString*)URL,... {
   UIViewController* controller = nil;
   va_list ap;
@@ -715,27 +574,18 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (UIViewController*)viewControllerForURL:(NSString*)URL {
   return [self viewControllerForURL:URL query:nil pattern:nil];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (UIViewController*)viewControllerForURL:(NSString*)URL query:(NSDictionary*)query {
   return [self viewControllerForURL:URL query:query pattern:nil];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (UIViewController*)viewControllerForURL: (NSString*)URL
                                     query: (NSDictionary*)query
                                   pattern: (TTURLNavigatorPattern**)pattern {
@@ -786,27 +636,18 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (BOOL)isDelayed {
   return _delayCount > 0;
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (void)beginDelay {
   ++_delayCount;
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (void)endDelay {
   if (_delayCount && !--_delayCount) {
     for (UIViewController* controller in _delayedControllers) {
@@ -819,9 +660,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (void)cancelDelay {
   if (_delayCount && !--_delayCount) {
     TT_RELEASE_SAFELY(_delayedControllers);
@@ -830,9 +668,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (void)persistViewControllers {
   NSMutableArray* path = [NSMutableArray array];
   [self persistController:_rootViewController path:path];
@@ -849,27 +684,24 @@ UIViewController* TTOpenURL(NSString* URL) {
 
   NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
   if (path.count) {
-    [defaults setObject:path forKey:@"TTNavigatorHistory"];
-    [defaults setObject:[NSDate date] forKey:@"TTNavigatorHistoryTime"];
-    [defaults setObject:[NSNumber numberWithInt:important] forKey:@"TTNavigatorHistoryImportant"];
+    [defaults setObject:path forKey:kNavigatorHistoryKey];
+    [defaults setObject:[NSDate date] forKey:kNavigatorHistoryTimeKey];
+    [defaults setObject:[NSNumber numberWithInt:important] forKey:kNavigatorHistoryImportantKey];
   } else {
-    [defaults removeObjectForKey:@"TTNavigatorHistory"];
-    [defaults removeObjectForKey:@"TTNavigatorHistoryTime"];
-    [defaults removeObjectForKey:@"TTNavigatorHistoryImportant"];
+    [defaults removeObjectForKey:kNavigatorHistoryKey];
+    [defaults removeObjectForKey:kNavigatorHistoryTimeKey];
+    [defaults removeObjectForKey:kNavigatorHistoryImportantKey];
   }
   [defaults synchronize];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (UIViewController*)restoreViewControllers {
   NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-  NSDate* timestamp = [defaults objectForKey:@"TTNavigatorHistoryTime"];
-  NSArray* path = [defaults objectForKey:@"TTNavigatorHistory"];
-  BOOL important = [[defaults objectForKey:@"TTNavigatorHistoryImportant"] boolValue];
+  NSDate* timestamp = [defaults objectForKey:kNavigatorHistoryTimeKey];
+  NSArray* path = [defaults objectForKey:kNavigatorHistoryKey];
+  BOOL important = [[defaults objectForKey:kNavigatorHistoryImportantKey] boolValue];
   TTDCONDITIONLOG(TTDFLAG_NAVIGATOR, @"DEBUG RESTORE %@ FROM %@",
     path, [timestamp formatRelativeTime]);
 
@@ -911,9 +743,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (void)persistController:(UIViewController*)controller path:(NSMutableArray*)path {
   NSString* URL = controller.navigatorURL;
   if (URL) {
@@ -937,9 +766,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (void)removeAllViewControllers {
   [_rootViewController.view removeFromSuperview];
   TT_RELEASE_SAFELY(_rootViewController);
@@ -948,9 +774,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (NSString*)pathForObject:(id)object {
   if ([object isKindOfClass:[UIViewController class]]) {
     NSMutableArray* paths = [NSMutableArray array];
@@ -971,9 +794,6 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (id)objectForPath:(NSString*)path {
   NSArray* keys = [path componentsSeparatedByString:@"/"];
   UIViewController* controller = _rootViewController;
@@ -985,22 +805,16 @@ UIViewController* TTOpenURL(NSString* URL) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (void)resetDefaults {
   NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-  [defaults removeObjectForKey:@"TTNavigatorHistory"];
-  [defaults removeObjectForKey:@"TTNavigatorHistoryTime"];
-  [defaults removeObjectForKey:@"TTNavigatorHistoryImportant"];
+  [defaults removeObjectForKey:kNavigatorHistoryKey];
+  [defaults removeObjectForKey:kNavigatorHistoryTimeKey];
+  [defaults removeObjectForKey:kNavigatorHistoryImportantKey];
   [defaults synchronize];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * @public
- */
 - (void)reload {
   UIViewController* controller = self.visibleViewController;
   if ([controller isKindOfClass:[TTModelViewController class]]) {

@@ -39,7 +39,7 @@
 		}
 		_segmentedControl = [[UISegmentedControl alloc] initWithItems:itemNames];
 		_segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
-		_segmentedControl.tintColor = TTSTYLEVAR(segmentedControlTintColor);
+		_segmentedControl.tintColor = TTSTYLEVAR(toolbarTintColor);
 		_segmentedControl.selectedSegmentIndex = 0;
 		
 		CGFloat newWidthWithMargins = (self.bounds.size.width - 2*kMargin);

@@ -16,10 +16,13 @@
 
 #import "Three20/NSStringAdditions.h"
 
-#import "Three20/TTDebug.h"
+// Core
 #import "Three20/TTMarkupStripper.h"
+#import "Three20/NSDataAdditions.h"
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation NSString (TTAdditions)
 
@@ -38,14 +41,8 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (BOOL)isWhitespace {
-  return [self isWhitespaceAndNewlines];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)isEmptyOrWhitespace {
-  return !self.length || 
+  return !self.length ||
          ![self stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]].length;
 }
 
@@ -91,7 +88,7 @@
     NSString* pair = [NSString stringWithFormat:@"%@=%@", key, value];
     [pairs addObject:pair];
   }
-  
+
   NSString* params = [pairs componentsJoinedByString:@"&"];
   if ([self rangeOfString:@"?"].location == NSNotFound) {
     return [self stringByAppendingFormat:@"?%@", params];
@@ -132,6 +129,12 @@
   NSNumber *oneAlpha = [NSNumber numberWithInt:[[oneComponents objectAtIndex:1] intValue]];
   NSNumber *twoAlpha = [NSNumber numberWithInt:[[twoComponents objectAtIndex:1] intValue]];
   return [oneAlpha compare:twoAlpha];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (NSString*)md5Hash {
+  return [[self dataUsingEncoding:NSUTF8StringEncoding] md5Hash];
 }
 
 

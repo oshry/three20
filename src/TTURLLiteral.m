@@ -16,6 +16,7 @@
 
 #import "Three20/TTURLLiteral.h"
 
+// Core
 #import "Three20/TTCorePreprocessorMacros.h"
 
 
@@ -28,17 +29,9 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (id)init {
-  if (self = [super init]) {
-    _name = nil;
-  }
-  return self;
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   TT_RELEASE_SAFELY(_name);
+
   [super dealloc];
 }
 

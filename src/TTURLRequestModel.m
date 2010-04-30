@@ -16,10 +16,13 @@
 
 #import "Three20/TTURLRequestModel.h"
 
+// Network
+#import "Three20/TTURLRequest.h"
 #import "Three20/TTURLRequestQueue.h"
 #import "Three20/TTURLCache.h"
 
-#import "Three20/TTGlobalCore.h"
+// Core
+#import "Three20/TTCorePreprocessorMacros.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,15 +33,6 @@
 @synthesize loadedTime  = _loadedTime;
 @synthesize cacheKey    = _cacheKey;
 @synthesize hasNoMore   = _hasNoMore;
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (id)init {
-  if (self = [super init]) {
-    _isLoadingMore = NO;
-  }
-  return self;
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,16 +81,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)isOutdated {
-  if (!_cacheKey && _loadedTime) {
-    return YES;
-
-  } else if (!_cacheKey) {
-    return NO;
+  if (nil == _cacheKey) {
+    return nil != _loadedTime;
 
   } else {
     NSDate* loadedTime = self.loadedTime;
 
-    if (loadedTime) {
+    if (nil != loadedTime) {
       return -[loadedTime timeIntervalSinceNow] > [TTURLCache sharedCache].invalidationAge;
 
     } else {
@@ -114,7 +105,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)invalidate:(BOOL)erase {
-  if (_cacheKey) {
+  if (nil != _cacheKey) {
     if (erase) {
       [[TTURLCache sharedCache] removeKey:_cacheKey];
 

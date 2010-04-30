@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+// Style
 #import "Three20/TTStyleSheet.h"
 
 @class TTShape;
@@ -31,7 +32,6 @@
 
 @property(nonatomic,readonly) UIColor* navigationBarTintColor;
 @property(nonatomic,readonly) UIColor* toolbarTintColor;
-@property(nonatomic,readonly) UIColor* segmentedControlTintColor;
 @property(nonatomic,readonly) UIColor* searchBarTintColor;
 @property(nonatomic,readonly) UIColor* screenBackgroundColor;
 @property(nonatomic,readonly) UIColor* backgroundColor;
@@ -52,43 +52,43 @@
 
 // Table refresh header.
 // Used in TTTableViewDragRefreshDelegate.h/m
-@property(nonatomic,readonly) UIFont*  tableRefreshHeaderLastUpdatedFont;
-@property(nonatomic,readonly) UIFont*  tableRefreshHeaderStatusFont;
-@property(nonatomic,readonly) UIColor* tableRefreshHeaderBackgroundColor;
-@property(nonatomic,readonly) UIColor* tableRefreshHeaderTextColor;
-@property(nonatomic,readonly) UIColor* tableRefreshHeaderTextShadowColor;
-@property(nonatomic,readonly) CGSize   tableRefreshHeaderTextShadowOffset;
-@property(nonatomic,readonly) UIImage* tableRefreshHeaderArrowImage;
+@property (nonatomic, readonly) UIFont*  tableRefreshHeaderLastUpdatedFont;
+@property (nonatomic, readonly) UIFont*  tableRefreshHeaderStatusFont;
+@property (nonatomic, readonly) UIColor* tableRefreshHeaderBackgroundColor;
+@property (nonatomic, readonly) UIColor* tableRefreshHeaderTextColor;
+@property (nonatomic, readonly) UIColor* tableRefreshHeaderTextShadowColor;
+@property (nonatomic, readonly) CGSize   tableRefreshHeaderTextShadowOffset;
+@property (nonatomic, readonly) UIImage* tableRefreshHeaderArrowImage;
 
 
-@property(nonatomic,readonly) UIColor* tabTintColor;
-@property(nonatomic,readonly) UIColor* tabBarTintColor;
+@property (nonatomic, readonly) UIColor* tabTintColor;
+@property (nonatomic, readonly) UIColor* tabBarTintColor;
 
-@property(nonatomic,readonly) UIColor* messageFieldTextColor;
-@property(nonatomic,readonly) UIColor* messageFieldSeparatorColor;
+@property (nonatomic, readonly) UIColor* messageFieldTextColor;
+@property (nonatomic, readonly) UIColor* messageFieldSeparatorColor;
 
-@property(nonatomic,readonly) UIColor* thumbnailBackgroundColor;
+@property (nonatomic, readonly) UIColor* thumbnailBackgroundColor;
 
-@property(nonatomic,readonly) UIColor* postButtonColor;
+@property (nonatomic, readonly) UIColor* postButtonColor;
 
-@property(nonatomic,readonly) UIFont* font;
-@property(nonatomic,readonly) UIFont* buttonFont;
-@property(nonatomic,readonly) UIFont* tableFont;
-@property(nonatomic,readonly) UIFont* tableSmallFont;
-@property(nonatomic,readonly) UIFont* tableTitleFont;
-@property(nonatomic,readonly) UIFont* tableTimestampFont;
-@property(nonatomic,readonly) UIFont* tableButtonFont;
-@property(nonatomic,readonly) UIFont* tableSummaryFont;
-@property(nonatomic,readonly) UIFont* tableHeaderPlainFont;
-@property(nonatomic,readonly) UIFont* tableHeaderGroupedFont;
-@property(nonatomic,readonly) UIFont* photoCaptionFont;
-@property(nonatomic,readonly) UIFont* messageFont;
-@property(nonatomic,readonly) UIFont* errorTitleFont;
-@property(nonatomic,readonly) UIFont* errorSubtitleFont;
-@property(nonatomic,readonly) UIFont* activityLabelFont;
-@property(nonatomic,readonly) UIFont* activityBannerFont;
+@property (nonatomic, readonly) UIFont* font;
+@property (nonatomic, readonly) UIFont* buttonFont;
+@property (nonatomic, readonly) UIFont* tableFont;
+@property (nonatomic, readonly) UIFont* tableSmallFont;
+@property (nonatomic, readonly) UIFont* tableTitleFont;
+@property (nonatomic, readonly) UIFont* tableTimestampFont;
+@property (nonatomic, readonly) UIFont* tableButtonFont;
+@property (nonatomic, readonly) UIFont* tableSummaryFont;
+@property (nonatomic, readonly) UIFont* tableHeaderPlainFont;
+@property (nonatomic, readonly) UIFont* tableHeaderGroupedFont;
+@property (nonatomic, readonly) UIFont* photoCaptionFont;
+@property (nonatomic, readonly) UIFont* messageFont;
+@property (nonatomic, readonly) UIFont* errorTitleFont;
+@property (nonatomic, readonly) UIFont* errorSubtitleFont;
+@property (nonatomic, readonly) UIFont* activityLabelFont;
+@property (nonatomic, readonly) UIFont* activityBannerFont;
 
-@property(nonatomic,readonly) UITableViewCellSelectionStyle tableSelectionStyle;
+@property (nonatomic, readonly) UITableViewCellSelectionStyle tableSelectionStyle;
 
 - (TTStyle*)selectionFillStyle:(TTStyle*)next;
 

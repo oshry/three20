@@ -16,10 +16,10 @@
 
 #import "Three20/TTModel.h"
 
+// Core
 #import "Three20/TTGlobalCore.h"
-
-#import "Three20/TTURLCache.h"
-#import "Three20/TTURLRequestQueue.h"
+#import "Three20/TTCorePreprocessorMacros.h"
+#import "Three20/NSArrayAdditions.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -29,17 +29,9 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (id)init {
-  if (self = [super init]) {
-    _delegates = nil;
-  }
-  return self;
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   TT_RELEASE_SAFELY(_delegates);
+
   [super dealloc];
 }
 
