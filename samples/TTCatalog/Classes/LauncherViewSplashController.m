@@ -35,7 +35,9 @@
 // TTLauncherViewDelegate
 
 - (void)launcherView:(TTLauncherView*)launcher didSelectItem:(TTLauncherItem*)item {
-	[[TTNavigator navigator] openURL:item.URL animated:YES];
+	TTURLAction *action = [TTURLAction actionWithURLPath:item.URL];
+	[action setAnimated:YES];
+	[[TTNavigator navigator] openURLAction:action];
 }
 
 - (void)launcherViewDidBeginEditing:(TTLauncherView*)launcher {
