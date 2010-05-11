@@ -59,11 +59,9 @@
 	[super loadView];	
 	_launcherView = [[TTLauncherView alloc] initWithFrame:self.view.bounds];
 	_launcherView.backgroundColor = TTSTYLEVAR(launcherBackgroundColor);
-	//self.view = _launcherView;
 	[self.view addSubview:_headerView];
 	[self.view addSubview:_launcherView];
 	[self.view addSubview:_footerView];
-	
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -128,6 +126,13 @@
 #pragma mark Animation delegates
 
 - (void)showAnimationDidStop {
+	UIViewController *previousVC = nil;
+	NSArray *vcs = [_launcherNavigationController viewControllers];
+	if ([vcs count] > 1) {
+		previousVC = [vcs objectAtIndex:([vcs count]-2)];
+	}
+	[previousVC viewDidDisappear:YES];
+	[[_launcherNavigationController topViewController] viewDidAppear:YES];
 }
 
 - (void)fadeAnimationDidStop {
@@ -241,10 +246,14 @@
 - (void)navigationController:(UINavigationController *)navigationController 
 							didShowViewController:(UIViewController *)viewController 
 							animated:(BOOL)animated {
-	[_launcherNavigationControllerTopViewController viewDidDisappear:animated];
-	[viewController viewDidAppear:animated];
-	
+	// Rodrigo: we notify view controllers when animation finished
 	self.launcherNavigationControllerTopViewController = viewController;
+	// Check whether this is the first subcontroller. If it's the first 
+	// subcontroller, we let the viewDidAppear message to the delegate when
+	// animation stopped. Otherwise, we need to call it here.
+	if ([[navigationController viewControllers] count] > 1) {
+		[viewController viewDidAppear:animated];
+	}
 }
 
 #pragma mark -
