@@ -159,7 +159,6 @@
 
 
 - (void)launchChild {
-
 	UIView *viewToLaunch = [[_launcherNavigationController topViewController] view];
 	viewToLaunch.transform = [self transformForOrientation];
 
