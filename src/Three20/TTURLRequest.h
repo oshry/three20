@@ -32,7 +32,7 @@
  * processing using TTURLResponse objects.
  */
 @interface TTURLRequest : NSObject {
-  NSMutableString*             _urlPath;
+  NSMutableString*      _urlPath;
 
   NSString*             _httpMethod;
   NSData*               _httpBody;
