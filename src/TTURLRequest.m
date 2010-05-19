@@ -154,6 +154,12 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
   NSMutableData* body = [NSMutableData data];
   NSString* beginLine = [NSString stringWithFormat:@"\r\n--%@\r\n", kStringBoundary];
 
+  // Rodrigo: we should not send any body if no
+  // parameter or file is present.
+  if ([_parameters count] <= 0 || [_files count] <= 0) {
+	  return nil;
+  }
+	
   [body appendData:[[NSString stringWithFormat:@"--%@\r\n", kStringBoundary]
     dataUsingEncoding:NSUTF8StringEncoding]];
 
