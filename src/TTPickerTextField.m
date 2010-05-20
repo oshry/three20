@@ -413,7 +413,8 @@ static const CGFloat kMinCursorWidth  = 50;
 
   SEL sel = @selector(textField:didAddCellAtIndex:);
   if ([self.delegate respondsToSelector:sel]) {
-    [self.delegate performSelector:sel withObject:self withObject:(id)_cellViews.count-1];
+	// Rodrigo: we must use NSNumber to pass an object to delegate
+	[self.delegate performSelector:sel withObject:self withObject:(id)[NSNumber numberWithInt:_cellViews.count-1]];
   }
 }
 
@@ -428,7 +429,8 @@ static const CGFloat kMinCursorWidth  = 50;
 
       SEL sel = @selector(textField:didRemoveCellAtIndex:);
       if ([self.delegate respondsToSelector:sel]) {
-        [self.delegate performSelector:sel withObject:self withObject:(id)i];
+        // Rodrigo: we must use NSNumber to pass an object to delegate
+        [self.delegate performSelector:sel withObject:self withObject:(id)[NSNumber numberWithInt:i]];
       }
       break;
     }

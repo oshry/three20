@@ -22,9 +22,9 @@
 @protocol TTPickerTextFieldDelegate <TTSearchTextFieldDelegate>
 @optional
 
-- (void)textField:(TTPickerTextField*)textField didAddCellAtIndex:(NSInteger)index;
+- (void)textField:(TTPickerTextField*)textField didAddCellAtIndex:(NSNumber *)index;
 
-- (void)textField:(TTPickerTextField*)textField didRemoveCellAtIndex:(NSInteger)index;
+- (void)textField:(TTPickerTextField*)textField didRemoveCellAtIndex:(NSNumber *)index;
 
 - (void)textFieldDidResize:(TTPickerTextField*)textField;
 
