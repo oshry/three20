@@ -465,13 +465,13 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)textField:(TTPickerTextField*)textField didAddCellAtIndex:(NSInteger)index {
+- (void)textField:(TTPickerTextField*)textField didAddCellAtIndex:(NSNumber *)index {
   [self updateSendCommand];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)textField:(TTPickerTextField*)textField didRemoveCellAtIndex:(NSInteger)index {
+- (void)textField:(TTPickerTextField*)textField didRemoveCellAtIndex:(NSNumber *)index {
   [self updateSendCommand];
 }
 
