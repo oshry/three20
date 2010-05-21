@@ -500,6 +500,15 @@ static NSMutableDictionary* gNamedCaches = nil;
   return [self invalidateKey:key];
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Rodrigo: we need these methods in order for upper request handling classes
+// be able to verify whether a particular URL or key is invalidated or not.
+// See discussion: http://groups.google.com/group/three20/browse_thread/thread/9f12defb25a332fa
+- (BOOL)isURLInvalidated:(NSString *)URL {
+	NSString* key = [self keyForURL:URL];
+	return [self isKeyInvalidated:key];
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)invalidateKey:(NSString*)key {
@@ -514,6 +523,23 @@ static NSMutableDictionary* gNamedCaches = nil;
   }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Rodrigo: we need these methods in order for upper request handling classes
+// be able to verify whether a particular URL or key is invalidated or not.
+// See discussion: http://groups.google.com/group/three20/browse_thread/thread/9f12defb25a332fa
+- (BOOL)isKeyInvalidated:(NSString *)key {
+	// If no cache is found, we return NO, as there are requests
+	// which disable caching. Otherwise recurring attempts to reload will occur.
+	BOOL invalidated = NO;
+	NSString* filePath = [self cachePathForKey:key];
+	NSFileManager* fm = [NSFileManager defaultManager];
+	if (filePath && [fm fileExistsAtPath:filePath]) {
+		NSDictionary *cacheFileAttrs = [fm fileAttributesAtPath:filePath traverseLink:NO];
+		NSDate *modificationDate = [cacheFileAttrs objectForKey:NSFileModificationDate];
+		invalidated = -[modificationDate timeIntervalSinceNow] > _invalidationAge;
+	}
+	return invalidated;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)invalidateAll {

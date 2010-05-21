@@ -190,6 +190,13 @@
 
 - (void)invalidateKey:(NSString*)key;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Rodrigo: we need these methods in order for upper request handling classes
+// be able to verify whether a particular URL or key is invalidated or not.
+// See discussion: http://groups.google.com/group/three20/browse_thread/thread/9f12defb25a332fa
+- (BOOL)isURLInvalidated:(NSString *)URL;
+- (BOOL)isKeyInvalidated:(NSString *)key;
+
 /**
  * Invalidates all files in the disk cache according to rules explained in `invalidateURL`.
  */

@@ -81,19 +81,23 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)isOutdated {
+  BOOL result = NO;
   if (nil == _cacheKey) {
-    return nil != _loadedTime;
-
+    result = (nil != _loadedTime);
   } else {
     NSDate* loadedTime = self.loadedTime;
-
     if (nil != loadedTime) {
-      return -[loadedTime timeIntervalSinceNow] > [TTURLCache sharedCache].invalidationAge;
-
-    } else {
-      return NO;
-    }
+//		// 1. Is the interval inside 
+//		NSLog(@"interval: %f", [loadedTime timeIntervalSinceNow]);
+//		NSLog(@"invalidationAge: %f", [TTURLCache sharedCache].invalidationAge);
+//		result = -[loadedTime timeIntervalSinceNow] > [TTURLCache sharedCache].invalidationAge;
+		// Verify also whether key is valid in cache
+		if ([[TTURLCache sharedCache] isKeyInvalidated:self.cacheKey]) {
+			return YES;
+		}
+    } 
   }
+  return result;
 }
 
 
