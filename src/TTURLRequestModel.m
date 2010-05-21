@@ -87,10 +87,6 @@
   } else {
     NSDate* loadedTime = self.loadedTime;
     if (nil != loadedTime) {
-//		// 1. Is the interval inside 
-//		NSLog(@"interval: %f", [loadedTime timeIntervalSinceNow]);
-//		NSLog(@"invalidationAge: %f", [TTURLCache sharedCache].invalidationAge);
-//		result = -[loadedTime timeIntervalSinceNow] > [TTURLCache sharedCache].invalidationAge;
 		// Verify also whether key is valid in cache
 		if ([[TTURLCache sharedCache] isKeyInvalidated:self.cacheKey]) {
 			return YES;
