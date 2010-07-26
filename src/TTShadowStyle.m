@@ -102,8 +102,12 @@
   CGContextSaveGState(ctx);
 
   [context.shape addToPath:context.frame];
-  CGContextSetShadowWithColor(ctx, CGSizeMake(_offset.width, -_offset.height), _blur,
-                              _color.CGColor);
+
+// Rodrigo: Fix the shadow issue in TTLauncherItem as discussed here
+// http://groups.google.com/group/three20/browse_thread/thread/ff57fb6347ec3b7e/b50f33ff39f5f5a1?lnk=gst&q=TTLauncherItem+badge#b50f33ff39f5f5a1
+  CGContextSetShadowWithColor(ctx, CGSizeMake(_offset.width, _offset.height), _blur, 
+								_color.CGColor); 
+
   CGContextBeginTransparencyLayer(ctx, nil);
   [self.next draw:context];
   CGContextEndTransparencyLayer(ctx);
