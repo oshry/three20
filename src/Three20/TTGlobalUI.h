@@ -79,6 +79,11 @@ CGFloat TTKeyboardHeightForOrientation(UIInterfaceOrientation orientation);
  */
 void TTAlert(NSString* message);
 
+/**
+ * Rodrigo: A convenient way to show a UIAlertView with a message and title.
+ */
+void TTAlertWithTitle(NSString* title, NSString* message);
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Debug logging helpers
