@@ -14,7 +14,7 @@
 #define TTLAUNCHERVIEW_MAX_SIZE		CGSizeMake(320.0f, 426.0f)
 
 @interface TTLauncherViewController (Private)
-- (void)dismissChildAnimated:(BOOL)animated;
+- (void)removeFromSupercontroller:(BOOL)animated;
 @end
 
 
@@ -76,12 +76,24 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
 	[super viewWillDisappear:animated];
-	[_launcherNavigationController viewWillDisappear:animated];
+	// This managed view can only disapear if another
+	// view controller is pushed. 
+	// In this case, we do not need to call 
+	//	[_launcherNavigationController viewWillDisappear:animated];
+	// since this doesn't make sense. Besides, when we call
+	// viewWillDisappear, there is already a root view controller
+	// on top of _launcherNavigationController.
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
 	[super viewDidDisappear:animated];
-	[_launcherNavigationController viewDidDisappear:animated];
+	// This managed view can only disapear if another
+	// view controller is pushed. 
+	// In this case, we do not need to call 
+	//	[_launcherNavigationController viewDidDisappear:animated];
+	// since this doesn't make sense. Besides, when we call
+	// viewWillDisappear, there is already a root view controller
+	// on top of _launcherNavigationController.
 }
 
 - (CGAffineTransform)transformForOrientation {
@@ -126,25 +138,22 @@
 #pragma mark Animation delegates
 
 - (void)showAnimationDidStop {
-	UIViewController *previousVC = nil;
-	NSArray *vcs = [_launcherNavigationController viewControllers];
-	if ([vcs count] > 1) {
-		previousVC = [vcs objectAtIndex:([vcs count]-2)];
-	}
-	[previousVC viewDidDisappear:YES];
-	[[_launcherNavigationController topViewController] viewDidAppear:YES];
+	// Notify super controller that it did disappear, since
+	// a child was launched on top.
+	[self viewDidDisappear:YES];
 }
 
 - (void)fadeAnimationDidStop {
-	[self dismissChildAnimated:NO];
+	[[_launcherNavigationController topViewController] viewDidDisappear:YES];
+	[self removeFromSupercontroller:NO];
 	TT_RELEASE_SAFELY(_overlayView);
 }
 
 - (void)fadeOut {
-	UIView *viewToDismiss = [[_launcherNavigationController topViewController] view];
-
-	viewToDismiss.transform = CGAffineTransformIdentity;
+	[[_launcherNavigationController topViewController] viewWillDisappear:YES];
 	
+	UIView *viewToDismiss = [[_launcherNavigationController topViewController] view];
+	viewToDismiss.transform = CGAffineTransformIdentity;
 	[UIView beginAnimations:nil context:nil];
 	[UIView setAnimationDuration:TT_LAUNCHER_HIDE_TRANSITION_DURATION];
 	[UIView setAnimationCurve:UIViewAnimationCurveEaseIn];
@@ -159,7 +168,16 @@
 
 
 - (void)launchChild {
+	// Notify super controller that it will disappear, since
+	// a chile will be launched on top.
+	[self viewWillDisappear:YES];
+	
 	UIView *viewToLaunch = [[_launcherNavigationController topViewController] view];
+	
+	// Hide keyboard if visible
+	UIResponder *firstResponder = [[[UIApplication sharedApplication] keyWindow] findFirstResponder]; 
+	[firstResponder resignFirstResponder];
+	
 	viewToLaunch.transform = [self transformForOrientation];
 
 	[self.superController.view addSubview:[_launcherNavigationController view]];
@@ -182,6 +200,9 @@
 	[UIView commitAnimations];
 }
 
+#pragma mark -
+#pragma mark UIViewController (TTCategory)
+
 - (void)addSubcontroller:(UIViewController*)controller animated:(BOOL)animated transition:(UIViewAnimationTransition)transition {
 	if (!_launcherNavigationController) {
 		_launcherNavigationController = [[UINavigationController alloc] initWithRootViewController:controller];
@@ -189,7 +210,10 @@
 		_launcherNavigationController.delegate = self;
 
 		// Add default left-side button in navigation bar
-		UIBarButtonItem *launcherBarButtonItem = [[UIBarButtonItem alloc] initWithImage:TTIMAGE(@"bundle://Three20.bundle/images/launcher.png") style:UIBarButtonItemStyleBordered target:self action:@selector(dismissChild)];
+		UIBarButtonItem *launcherBarButtonItem = [[UIBarButtonItem alloc] initWithImage:TTIMAGE(@"bundle://Three20.bundle/images/launcher.png") 
+																style:UIBarButtonItemStyleBordered 
+																target:self
+																action:@selector(removeFromSupercontroller)];
 		[controller.navigationItem setLeftBarButtonItem:launcherBarButtonItem];
 		[launcherBarButtonItem release];
 
@@ -198,31 +222,25 @@
 		
 	} else {
 		[_launcherNavigationController addSubcontroller:controller animated:animated transition:transition];
-		self.launcherNavigationControllerTopViewController = controller;
 	}
 }
 
-- (void)dismissChild {
-	[self dismissChildAnimated:YES];
-}
-
-- (void)dismissChildAnimated:(BOOL)animated {
+- (void)removeFromSupercontroller:(BOOL)animated {
 	if (animated) {
 		[self fadeOut];
 	} else {
-		[[_launcherNavigationController topViewController] viewWillDisappear:animated];
 		UIView *viewToDismiss = [_launcherNavigationController view];
 		[viewToDismiss removeFromSuperview];
-		[[_launcherNavigationController topViewController] viewDidDisappear:animated];
 		TT_RELEASE_SAFELY(_launcherNavigationController);
+		_launcherNavigationControllerTopViewController = nil;
 		[self.superController viewWillAppear:animated];
 		[self.superController viewDidAppear:animated];
 	}
-	[[_launcherNavigationController topViewController] viewDidDisappear:animated];
 }
 
-#pragma mark -
-#pragma mark UIViewController (TTCategory)
+- (void)removeFromSupercontroller {
+	[self removeFromSupercontroller:YES];
+}
 
 - (void)persistNavigationPath:(NSMutableArray*)path {
 	if (_launcherNavigationController) {
@@ -231,28 +249,25 @@
 	}
 }
 
-
 #pragma mark -
 #pragma mark UINavigationControllerDelegate
 
 - (void)navigationController:(UINavigationController *)navigationController 
 							willShowViewController:(UIViewController *)viewController 
 							animated:(BOOL)animated {
-	[_launcherNavigationControllerTopViewController viewWillDisappear:animated];
+	[self.launcherNavigationControllerTopViewController viewWillDisappear:animated];
 	[viewController viewWillAppear:animated];
 }
 
 - (void)navigationController:(UINavigationController *)navigationController 
 							didShowViewController:(UIViewController *)viewController 
 							animated:(BOOL)animated {
+	[self.launcherNavigationControllerTopViewController viewDidDisappear:animated];
 	// Rodrigo: we notify view controllers when animation finished
 	self.launcherNavigationControllerTopViewController = viewController;
-	// Check whether this is the first subcontroller. If it's the first 
-	// subcontroller, we let the viewDidAppear message to the delegate when
-	// animation stopped. Otherwise, we need to call it here.
-	if ([[navigationController viewControllers] count] > 1) {
-		[viewController viewDidAppear:animated];
-	}
+
+	NSValue *animatedValue = [NSValue valueWithBytes:&animated objCType:@encode(BOOL)];
+	[viewController performSelector:@selector(viewDidAppear:) withObject:animatedValue afterDelay:TT_LAUNCHER_SHOW_TRANSITION_DURATION];
 }
 
 #pragma mark -

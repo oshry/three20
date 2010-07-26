@@ -627,7 +627,7 @@
 					"-ObjC",
 				);
 				PRODUCT_NAME = TTCatalog;
-				SDKROOT = iphonesimulator3.0;
+				SDKROOT = iphonesimulator4.0;
 			};
 			name = Debug;
 		};
