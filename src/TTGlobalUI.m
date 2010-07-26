@@ -152,3 +152,12 @@ void TTAlert(NSString* message) {
                                              otherButtonTitles:nil] autorelease];
   [alert show];
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void TTAlertWithTitle(NSString* title, NSString* message) {
+	UIAlertView* alert = [[[UIAlertView alloc] initWithTitle:title
+													 message:message delegate:nil
+										   cancelButtonTitle:TTLocalizedString(@"OK", @"")
+										   otherButtonTitles:nil] autorelease];
+	[alert show];
+}
