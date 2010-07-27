@@ -80,20 +80,23 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (BOOL)isOutdated {
-  BOOL result = NO;
-  if (nil == _cacheKey) {
-    result = (nil != _loadedTime);
-  } else {
-    NSDate* loadedTime = self.loadedTime;
-    if (nil != loadedTime) {
-		// Verify also whether key is valid in cache
-		if ([[TTURLCache sharedCache] isKeyInvalidated:self.cacheKey]) {
-			return YES;
+- (BOOL)isOutdated {	
+	if (nil == _cacheKey && nil != _loadedTime) {
+		return YES;
+		
+	} else if (nil == _cacheKey) {
+		return NO;
+		
+	} else {
+		NSDate* loadedTime = self.loadedTime;
+		
+		if (nil != loadedTime) {
+			return -[loadedTime timeIntervalSinceNow] > [TTURLCache sharedCache].invalidationAge;
+			
+		} else {
+			return NO;
 		}
-    } 
-  }
-  return result;
+	}
 }
 
 
