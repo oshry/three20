@@ -98,4 +98,10 @@
  */
 - (NSString*)formatMonthShort;
 
+/** 
+ * Rodrigo: Methods to support timezone offset.
+ */
+- (NSString*)formatTimeWithOffset:(NSInteger)offset;
+- (NSString*)formatDateTimeWithOffset:(NSInteger)offset;
+
 @end

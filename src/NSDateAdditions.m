@@ -171,7 +171,6 @@
   }
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)formatRelativeTime {
   NSTimeInterval elapsed = abs([self timeIntervalSinceNow]);
@@ -287,5 +286,47 @@
 	}
 	return [formatter stringFromDate:self];
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Methods to support offset (to support timezones)
+
+- (NSString*)formatTimeWithOffset:(NSInteger)offset {
+	static NSDateFormatter* formatter = nil;
+	NSTimeZone *eventTZ = [NSTimeZone timeZoneForSecondsFromGMT:offset];
+	if (!formatter) {
+		formatter = [[NSDateFormatter alloc] init];
+		formatter.dateFormat = TTLocalizedString(@"h:mm a", @"Date format: 1:05 pm");
+		formatter.locale = TTCurrentLocale();
+		formatter.timeZone = eventTZ;
+	}
+	return [formatter stringFromDate:self];
+}
+
+- (NSString*)formatDateTimeWithOffset:(NSInteger)offset {
+	NSTimeInterval diff = abs([self timeIntervalSinceNow]);
+	NSTimeZone *eventTZ = [NSTimeZone timeZoneForSecondsFromGMT:offset];
+	if (diff < TT_DAY) {
+		return [self formatTimeWithOffset:offset];
+	} else if (diff < TT_WEEK) {
+		static NSDateFormatter* formatter = nil;
+		if (!formatter) {
+			formatter = [[NSDateFormatter alloc] init];
+			formatter.dateFormat = TTLocalizedString(@"EEE h:mm a", @"Date format: Mon 1:05 pm");
+			formatter.locale = TTCurrentLocale();
+			formatter.timeZone = eventTZ;
+		}
+		return [formatter stringFromDate:self];
+	} else {
+		static NSDateFormatter* formatter = nil;
+		if (!formatter) {
+			formatter = [[NSDateFormatter alloc] init];
+			formatter.dateFormat = TTLocalizedString(@"MMM d h:mm a", @"Date format: Jul 27 1:05 pm");
+			formatter.locale = TTCurrentLocale();
+			formatter.timeZone = eventTZ;			
+		}
+		return [formatter stringFromDate:self];
+	}
+}
+
 
 @end
