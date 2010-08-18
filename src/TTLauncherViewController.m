@@ -22,7 +22,6 @@
 
 @synthesize launcherNavigationController = _launcherNavigationController;
 @synthesize launcherView = _launcherView;
-@synthesize launcherNavigationControllerTopViewController = _launcherNavigationControllerTopViewController;
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
@@ -249,22 +248,26 @@
 	}
 }
 
+- (UIViewController *)topSubcontroller {
+	return _launcherNavigationControllerTopViewController;
+}
+
 #pragma mark -
 #pragma mark UINavigationControllerDelegate
 
 - (void)navigationController:(UINavigationController *)navigationController 
 							willShowViewController:(UIViewController *)viewController 
 							animated:(BOOL)animated {
-	[self.launcherNavigationControllerTopViewController viewWillDisappear:animated];
+	[_launcherNavigationControllerTopViewController viewWillDisappear:animated];
 	[viewController viewWillAppear:animated];
 }
 
 - (void)navigationController:(UINavigationController *)navigationController 
 							didShowViewController:(UIViewController *)viewController 
 							animated:(BOOL)animated {
-	[self.launcherNavigationControllerTopViewController viewDidDisappear:animated];
+	[_launcherNavigationControllerTopViewController viewDidDisappear:animated];
 	// Rodrigo: we notify view controllers when animation finished
-	self.launcherNavigationControllerTopViewController = viewController;
+	_launcherNavigationControllerTopViewController = viewController;
 
 	NSValue *animatedValue = [NSValue valueWithBytes:&animated objCType:@encode(BOOL)];
 	[viewController performSelector:@selector(viewDidAppear:) withObject:animatedValue afterDelay:TT_LAUNCHER_SHOW_TRANSITION_DURATION];

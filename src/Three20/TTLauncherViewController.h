@@ -20,7 +20,6 @@
 
 @property(nonatomic, retain) UINavigationController *launcherNavigationController;
 @property(nonatomic, readonly) TTLauncherView *launcherView;
-@property(nonatomic, assign) UIViewController *launcherNavigationControllerTopViewController;
 @property(nonatomic, retain) UIView *headerView;
 @property(nonatomic, retain) UIView *footerView;
 
