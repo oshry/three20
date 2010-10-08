@@ -9,7 +9,7 @@
 #import "Three20/TTLauncherView.h"
 
 
-@interface TTLauncherViewController : TTModelViewController <UINavigationControllerDelegate> {
+@interface TTLauncherViewController : TTModelViewController {
 	UIView *_overlayView;
 	TTView *_headerView;
 	TTView *_footerView;

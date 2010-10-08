@@ -180,8 +180,8 @@ extern const CGFloat ttkDefaultFastTransitionDuration;
 extern const CGFloat ttkDefaultFlipTransitionDuration;
 
 // TODO: Adjust constants
-#define	TT_LAUNCHER_SHOW_TRANSITION_DURATION 0.25
-#define TT_LAUNCHER_HIDE_TRANSITION_DURATION 0.3
+#define	TT_LAUNCHER_SHOW_TRANSITION_DURATION	0.3
+#define TT_LAUNCHER_HIDE_TRANSITION_DURATION	0.3
 
 
 /**

@@ -44,7 +44,6 @@
 
 - (id)init {
 	if (self = [super init]) {
-		_launcherNavigationController = nil;
 		_overlayView = nil;
 		_launcherNavigationControllerTopViewController = nil;
 	}
@@ -56,7 +55,7 @@
 
 - (void)loadView {
 	[super loadView];	
-	_launcherView = [[TTLauncherView alloc] initWithFrame:self.view.bounds];
+	_launcherView = [[TTLauncherView alloc] initWithFrame:self.view.frame];
 	_launcherView.backgroundColor = TTSTYLEVAR(launcherBackgroundColor);
 	[self.view addSubview:_headerView];
 	[self.view addSubview:_launcherView];
@@ -65,34 +64,24 @@
 
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
-	[_launcherNavigationController viewWillAppear:animated];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
-	[_launcherNavigationController viewDidAppear:animated];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
 	[super viewWillDisappear:animated];
-	// This managed view can only disapear if another
-	// view controller is pushed. 
-	// In this case, we do not need to call 
-	//	[_launcherNavigationController viewWillDisappear:animated];
-	// since this doesn't make sense. Besides, when we call
-	// viewWillDisappear, there is already a root view controller
-	// on top of _launcherNavigationController.
+	// We should NOT call this for _launcherNavigationController
+	// otherwise the transition calls viewWillAppear: and viewDidAppear:
+	// won't be called by the navigation controller.
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
 	[super viewDidDisappear:animated];
-	// This managed view can only disapear if another
-	// view controller is pushed. 
-	// In this case, we do not need to call 
-	//	[_launcherNavigationController viewDidDisappear:animated];
-	// since this doesn't make sense. Besides, when we call
-	// viewWillDisappear, there is already a root view controller
-	// on top of _launcherNavigationController.
+	// We should NOT call this for _launcherNavigationController
+	// otherwise the transition calls viewWillAppear: and viewDidAppear:
+	// won't be called by the navigation controller.	
 }
 
 - (CGAffineTransform)transformForOrientation {
@@ -103,7 +92,7 @@
 #pragma mark Overlay view
 
 - (CGRect)rectForOverlayView {
-	return [_launcherView frameWithKeyboardSubtracted:0];
+	return [self.view frameWithKeyboardSubtracted:0];
 }
 
 - (void)addOverlayView {
@@ -114,7 +103,7 @@
 		_overlayView.alpha = 0.0f;
 		_overlayView.autoresizesSubviews = YES;
 		_overlayView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
-		[_launcherView addSubview:_overlayView];
+		[self.view addSubview:_overlayView];
 	}
 	self.view.frame = _overlayView.bounds;
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -145,7 +134,7 @@
 - (void)fadeAnimationDidStop {
 	[[_launcherNavigationController topViewController] viewDidDisappear:YES];
 	[self removeFromSupercontroller:NO];
-	TT_RELEASE_SAFELY(_overlayView);
+	[self resetOverlayView];
 }
 
 - (void)fadeOut {
@@ -155,20 +144,19 @@
 	viewToDismiss.transform = CGAffineTransformIdentity;
 	[UIView beginAnimations:nil context:nil];
 	[UIView setAnimationDuration:TT_LAUNCHER_HIDE_TRANSITION_DURATION];
-	[UIView setAnimationCurve:UIViewAnimationCurveEaseIn];
+	[UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
 	[UIView setAnimationDelegate:self];
 	[UIView setAnimationDidStopSelector:@selector(fadeAnimationDidStop)];
 	viewToDismiss.alpha = 0;		
 	viewToDismiss.transform = CGAffineTransformMakeScale(0.00001, 0.00001);
 	_overlayView.alpha = 0.0f;
-	[self resetOverlayView];
 	[UIView commitAnimations];	
 }
 
 
 - (void)launchChild {
 	// Notify super controller that it will disappear, since
-	// a chile will be launched on top.
+	// a child will be launched on top.
 	[self viewWillDisappear:YES];
 	
 	UIView *viewToLaunch = [[_launcherNavigationController topViewController] view];
@@ -178,19 +166,19 @@
 	[firstResponder resignFirstResponder];
 	
 	viewToLaunch.transform = [self transformForOrientation];
-
+	
 	[self.superController.view addSubview:[_launcherNavigationController view]];
 	
 	viewToLaunch.frame = self.view.bounds;
 	viewToLaunch.alpha = 0;		
 	viewToLaunch.transform = CGAffineTransformMakeScale(0.00001, 0.00001);
-		
+	
 	// Add overlay view
 	[self addOverlayView];
 	
 	[UIView beginAnimations:nil context:nil];
 	[UIView setAnimationDuration:TT_LAUNCHER_SHOW_TRANSITION_DURATION];
-	[UIView setAnimationCurve:UIViewAnimationCurveLinear];
+	[UIView setAnimationCurve:UIViewAnimationCurveEaseIn];
 	[UIView setAnimationDelegate:self];
 	[UIView setAnimationDidStopSelector:@selector(showAnimationDidStop)];
 	viewToLaunch.alpha = 1.0f;		
@@ -205,17 +193,19 @@
 - (void)addSubcontroller:(UIViewController*)controller animated:(BOOL)animated transition:(UIViewAnimationTransition)transition {
 	if (!_launcherNavigationController) {
 		_launcherNavigationController = [[UINavigationController alloc] initWithRootViewController:controller];
+		[_launcherNavigationController viewWillAppear:animated];
+		[_launcherNavigationController viewDidAppear:animated];
+		
 		_launcherNavigationController.superController = self;
-		_launcherNavigationController.delegate = self;
-
+		
 		// Add default left-side button in navigation bar
-		UIBarButtonItem *launcherBarButtonItem = [[UIBarButtonItem alloc] initWithImage:TTIMAGE(@"bundle://Three20.bundle/images/launcher.png") 
-																style:UIBarButtonItemStyleBordered 
-																target:self
-																action:@selector(removeFromSupercontroller)];
+		UIBarButtonItem *launcherBarButtonItem = [[UIBarButtonItem alloc] initWithImage:TTIMAGE(@"bundle://Three20.bundle/images/launcher.png")
+												  style:UIBarButtonItemStyleBordered
+												  target:self
+												  action:@selector(removeFromSupercontroller)];
 		[controller.navigationItem setLeftBarButtonItem:launcherBarButtonItem];
 		[launcherBarButtonItem release];
-
+		
 		// Launch child
 		[self launchChild];
 		
@@ -228,9 +218,16 @@
 	if (animated) {
 		[self fadeOut];
 	} else {
-		UIView *viewToDismiss = [_launcherNavigationController view];
-		[viewToDismiss removeFromSuperview];
-		TT_RELEASE_SAFELY(_launcherNavigationController);
+		[_launcherNavigationController.topViewController removeFromSupercontroller];
+		[[_launcherNavigationController view] removeFromSuperview];
+		// We need to keep this navigation controller
+		// so that notifications viewWillAppear: and viewDidAppear:
+		// continue to be dispatched.
+		// Since we cannot fully remove the top view controller from
+		// navigation controller, we set a 'nil' array. 
+		if ([_launcherNavigationController.viewControllers count] == 1) {
+			TT_RELEASE_SAFELY(_launcherNavigationController);
+		}
 		_launcherNavigationControllerTopViewController = nil;
 		[self.superController viewWillAppear:animated];
 		[self.superController viewDidAppear:animated];
@@ -253,27 +250,6 @@
 }
 
 #pragma mark -
-#pragma mark UINavigationControllerDelegate
-
-- (void)navigationController:(UINavigationController *)navigationController 
-							willShowViewController:(UIViewController *)viewController 
-							animated:(BOOL)animated {
-	[_launcherNavigationControllerTopViewController viewWillDisappear:animated];
-	[viewController viewWillAppear:animated];
-}
-
-- (void)navigationController:(UINavigationController *)navigationController 
-							didShowViewController:(UIViewController *)viewController 
-							animated:(BOOL)animated {
-	[_launcherNavigationControllerTopViewController viewDidDisappear:animated];
-	// Rodrigo: we notify view controllers when animation finished
-	_launcherNavigationControllerTopViewController = viewController;
-
-	NSValue *animatedValue = [NSValue valueWithBytes:&animated objCType:@encode(BOOL)];
-	[viewController performSelector:@selector(viewDidAppear:) withObject:animatedValue afterDelay:TT_LAUNCHER_SHOW_TRANSITION_DURATION];
-}
-
-#pragma mark -
 #pragma mark Layout subviews
 
 - (void)layoutSubviews {
@@ -283,7 +259,7 @@
 		[_headerView setFrame:CGRectMake(0.0f, 0.0f, _headerView.frame.size.width,  _headerView.frame.size.height)];
 		headerHeight = _headerView.frame.size.height;
 	}
-
+	
 	if (_footerView) {
 		footerHeight = _footerView.frame.size.height;
 		[_footerView setFrame:CGRectMake(0.0f, self.view.bounds.size.height - footerHeight, _footerView.frame.size.width,  footerHeight)];
